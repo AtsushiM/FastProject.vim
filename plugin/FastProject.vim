@@ -30,7 +30,7 @@ function! s:FPStart()
   " get template
   silent normal Y
   let git = @@
-  " call <SID>FPGetGit(git)
+  call <SID>FPGetGit(git)
 
   " compass create
   call <SID>FPCompassCreate()
