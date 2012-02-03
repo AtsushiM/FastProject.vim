@@ -6,8 +6,8 @@
 function! s:FPGetGit(repo)
     let i = matchlist(a:repo, '\v(.*)/(.*)')[2]
     echo 'Start GetGit: '
-    echo system('git clone git://github.com/'.a:repo.'.git')
-    echo system('mv '.i.'/* ./')
+    call system('git clone git://github.com/'.a:repo.'.git')
+    call system('mv -f '.i.'/* ./')
     echo system('rm -rf '.i)
     echo 'GetGit Done!'
 endfunction
@@ -28,7 +28,7 @@ function! s:FPStart()
   let reg_save = @@
 
   " get template
-  silent normal Y
+  silent normal _vg_y
   let git = @@
   call <SID>FPGetGit(git)
 
