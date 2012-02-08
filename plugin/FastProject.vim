@@ -3,10 +3,6 @@
 "VERSION:  0.1
 "LICENSE:  todo
 
-"killall以外の方法を探す
-"FastProjectでのプロジェクト作成時にファイル一覧に追加、呼び出し可能にする
-"プロジェクト開始時にターミナルで叩くコマンドを設定できるように調整
-"画像のパスを書き換える
 "gitやcompassがインストールされていない場合、エラーを表示させる
 "SASSの生成をwatchから保存時実行に変更する
 
@@ -202,7 +198,7 @@ function! s:FPTemplateEdit()
 endfunction
 function! s:FPList()
     let $conf = g:FastProject_DefaultConfigDir.g:FastProject_DefaultList
-    e $conf
+    sp $conf
 endfunction
 
 function! s:FastProject(...)
@@ -232,9 +228,9 @@ function! s:FPOpen()
     silent normal _vg_y
     let $path = @@
 
+    q
     cd $path
     e .
-    silent normal :q
 
     let @@ = reg
 
