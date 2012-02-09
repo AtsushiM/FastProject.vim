@@ -1,10 +1,12 @@
 "AUTHOR:   Atsushi Mizoue <asionfb@gmail.com>
-"WEBSITE:  todo
+"WEBSITE:  https://github.com/AtsushiM/FastProject.vim
 "VERSION:  0.1
 "LICENSE:  todo
 
 "gitやcompassがインストールされていない場合、エラーを表示させる
 "SASSの生成をwatchから保存時実行に変更する
+"デフォルトのキーマップを指定
+"1ファイルをgithubから取得する関数を用意
 
 if !exists("g:FastProject_SASSWatchStartRubyKill")
     let g:FastProject_SASSWatchStartRubyKill = 1
@@ -41,7 +43,7 @@ if !exists("g:FastProject_DefaultConfigFileTemplate")
     let g:FastProject_DefaultConfigFileTemplate = '.vfp.template'
 endif
 if !exists("g:FastProject_DefaultList")
-    let g:FastProject_DefaultList = '.vfplist'
+    let g:FastProject_DefaultList = '.vfl'
 endif
 
 " cd
@@ -67,6 +69,13 @@ function! s:FPGetGit(repo)
     call system('mv -f '.i.'/* ./')
     call system('rm -rf '.i)
     echo 'GetGit Done!'
+endfunction
+
+function! s:FPDownload(url)
+    let cmd = 'wget '.url
+    echo cmd
+    call system(cmd)
+    echo 'Download Done!'
 endfunction
 
 function! s:FPCompassCheck()
@@ -256,4 +265,16 @@ command! FPSassStart call s:FPSassStart()
 command! FPSassStop call s:FPSassStop()
 command! FPStart call s:FPStart()
 command! FPStop call s:FPStop()
+
+function! s:FPSetBufMapProjectFile()
+    nnoremap <buffer> e :FPInit<CR>
+    nnoremap <buffer> <CR> :FPInit<CR>
+endfunction
+autocmd BufRead .vfp call <SID>FPSetBufMapProjectFile()
+
+function! s:FPSetBufMapProjectList()
+    nnoremap <buffer> e :FPOpen<CR>
+    nnoremap <buffer> <CR> :FPOpen<CR>
+endfunction
+autocmd BufRead .vfl call <SID>FPSetBufMapProjectList()
 
