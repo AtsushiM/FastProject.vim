@@ -3,18 +3,6 @@
 "VERSION:  0.1
 "LICENSE:  todo
 
-"gitやcompassがインストールされていない場合、エラーを表示させる
-"SASSの生成をwatchから保存時実行に変更する
-"デフォルトのキーマップを指定
-"1ファイルをgithubから取得する関数を用意
-
-if !exists("g:FastProject_SASSWatchStartRubyKill")
-    let g:FastProject_SASSWatchStartRubyKill = 1
-endif
-if !exists("g:FastProject_VimStartCD")
-    " let g:FastProject_VimStartCD = $HOME
-    let g:FastProject_VimStartCD = $HOME.'/works'
-endif
 if !exists("g:FastProject_CDLoop")
     let g:FastProject_CDLoop = 5
 endif
@@ -42,25 +30,64 @@ endif
 if !exists("g:FastProject_DefaultConfigFileTemplate")
     let g:FastProject_DefaultConfigFileTemplate = '.vfp.template'
 endif
-if !exists("g:FastProject_DefaultList")
-    let g:FastProject_DefaultList = '.vfl'
+if !exists("g:FastProject_DefaultDownload")
+    let g:FastProject_DefaultDownload = '.FastProject-DownloadList'
 endif
-
-" cd
-let $FastProject_VimStartCD = g:FastProject_VimStartCD
-cd $FastProject_VimStartCD
+if !exists("g:FastProject_DefaultList")
+    let g:FastProject_DefaultList = '.FastProject-List'
+endif
+if !exists("g:FastProject_DefaultList")
+    let g:FastProject_DefaultList = '.FastProject-List'
+endif
+if !exists("g:FastProject_DefaultMemo")
+    let g:FastProject_DefaultMemo = '.FastProject-MEMO'
+endif
+if !exists("g:FastProject_DefaultBookmark")
+    let g:FastProject_DefaultBookmark = '.FastProject-Bookmark'
+endif
+if !exists("g:FastProject_TemplateWindowSize")
+    let g:FastProject_TemplateWindowSize = 15
+endif
+if !exists("g:FastProject_ListWindowSize")
+    let g:FastProject_ListWindowSize = 15
+endif
+if !exists("g:FastProject_DownloadWindowSize")
+    let g:FastProject_DownloadWindowSize = 50
+endif
+if !exists("g:FastProject_MemoWindowSize")
+    let g:FastProject_MemoWindowSize = 50
+endif
+if !exists("g:FastProject_BookmarkWindowSize")
+    let g:FastProject_BookmarkWindowSize = 50
+endif
 
 " config
-let $FastProject_DefaultConfigDir = g:FastProject_DefaultConfigDir
-let $FastProject_DefaultConfig = $FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
-let $FastProject_DefaultList = $FastProject_DefaultConfigDir.g:FastProject_DefaultList
-if !isdirectory($FastProject_DefaultConfigDir)
-    call mkdir($FastProject_DefaultConfigDir)
-    call system('echo -e "# Select Template\nAtsushiM/test-template\n" > '.$FastProject_DefaultConfig)
-    call system('echo -e "# Project List" > '.$FastProject_DefaultList)
+let s:FastProject_DefaultConfig = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
+let s:FastProject_DefaultList = g:FastProject_DefaultConfigDir.g:FastProject_DefaultList
+let s:FastProject_DefaultDownload = g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
+let s:FastProject_DefaultMemo = g:FastProject_DefaultConfigDir.g:FastProject_DefaultMemo
+let s:FastProject_DefaultBookmark = g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark
+if !isdirectory(g:FastProject_DefaultConfigDir)
+    call mkdir(g:FastProject_DefaultConfigDir)
+endif
+if !filereadable(s:FastProject_DefaultConfig)
+    call system('echo -e "# Select Template\nAtsushiM/test-template\n" > '.s:FastProject_DefaultConfig)
+endif
+if !filereadable(s:FastProject_DefaultList)
+    call system('echo -e "# Project List" > '.s:FastProject_DefaultList)
+endif
+if !filereadable(s:FastProject_DefaultDownload)
+    call system('echo -e "# Project DownloadList" > '.s:FastProject_DefaultDownload)
+endif
+if !filereadable(s:FastProject_DefaultMemo)
+    call system('echo -e "# Memo" > '.s:FastProject_DefaultMemo)
+endif
+if !filereadable(s:FastProject_DefaultBookmark)
+    call system('echo -e "# Bookmark" > '.s:FastProject_DefaultBookmark)
 endif
 
-autocmd BufNewFile .vfp 0r $FastProject_DefaultConfig
+exec 'autocmd BufNewFile .vfp 0r '.s:FastProject_DefaultConfig
+
 
 function! s:FPGetGit(repo)
     let i = matchlist(a:repo, '\v(.*)/(.*)')[2]
@@ -71,11 +98,12 @@ function! s:FPGetGit(repo)
     echo 'GetGit Done!'
 endfunction
 
-function! s:FPDownload(url)
+function! s:FPWget()
+    let url = <SID>FPLineRead()
+    echo url
     let cmd = 'wget '.url
-    echo cmd
     call system(cmd)
-    echo 'Download Done!'
+    echo cmd
 endfunction
 
 function! s:FPCompassCheck()
@@ -97,92 +125,62 @@ function! s:FPCompassCreate()
     echo cmd
 endfunction
 
-function! s:FPRubyKill()
-    if g:FastProject_SASSWatchStartRubyKill == 1
-        let cmd = 'killall "ruby"'
-        call system(cmd)
-        echo cmd
-    endif
-endfunction
-
-function! s:FPSassStart()
+function! s:FPSassCompile()
+    call FPCD()
     let check = <SID>FPCompassCheck()
-
     if check == 1
-        let cmd = 'compass watch &'
-        call <SID>FPRubyKill()
+        let cmd = 'compass compile'
         call system(cmd)
         echo cmd
     else
         let check = <SID>FPSassCheck()
         if check == 1
-            let cmd = 'sass --watch '.g:FastProject_DefaultSASSDir.':'.g:FastProject_DefaultCSSDir.'&'
-            call <SID>FPRubyKill()
+            let cmd = 'sass '.g:FastProject_DefaultSASSDir.':'.g:FastProject_DefaultCSSDir.'&'
             call system(cmd)
             echo cmd
         endif
     endif
 endfunction 
-
-function! s:FPSassStop()
-    call <SID>FPRubyKill()
-endfunction 
+autocmd BufWritePost .scss call <SID>FPSassCompile()
+autocmd BufWritePost .sass call <SID>FPSassCompile()
 
 function! s:FPInit()
     echo "FastProject:"
 
-    let reg = @@
     cd %:h
+    let repo = <SID>FPLineRead()
+    call <SID>FPGetGit(repo)
 
-    silent normal _vg_y
-    call <SID>FPGetGit(@@)
-
-    call system('echo -e "# '.@@.'" > '.g:FastProject_DefaultConfigFile)
+    call system('echo -e "# '.repo.'" > '.g:FastProject_DefaultConfigFile)
     echo 'overwrite ConfigFile'
 
     if g:FastProject_SASSWatchStart == 1
         call <SID>FPSassStart()
     endif
-    let @@ = reg
 
     e .
 
     echo "ALL Done!"
 endfunction
 
-function! s:FPStart()
-    if FPCD() == 1
-        if g:FastProject_SASSWatchStart == 1
-            call <SID>FPSassStart()
-        endif
-        echo "Project Start"
-    endif
-endfunction
-function! s:FPStop()
-    if FPCD() == 1
-        call <SID>FPRubyKill()
-        echo "Project Stop"
-    endif
-endfunction
-
 function! FPCD(...)
     cd %:h
 
     let i = 0
-    let $dir = './'
+    let dir = './'
     while i < g:FastProject_CDLoop
-        if !filereadable($dir.g:FastProject_DefaultConfigFile)
+        if !filereadable(dir.g:FastProject_DefaultConfigFile)
             let i = i + 1
-            let $dir = $dir.'../'
+            let dir = dir.'../'
         else
-            cd $dir
+            exec 'cd '.dir
             break
         endif
     endwhile
 
     if a:0 != 0
-        let $dir = a:000[0]
-        cd $dir
+        let dir = a:000[0]
+        exec 'cd '.dir
     endif
 
     pwd
@@ -196,28 +194,33 @@ endfunction
 
 function! FPEdit(path)
     if FPCD() == 1
-        let $path = a:path
-        e $path
+        exec 'e '.a:path
     endif
 endfunction
 
 function! s:FPTemplateEdit()
-    let $conf = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
-    sp $conf
+    exec g:FastProject_TemplateWindowSize."sp ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
 endfunction
 function! s:FPList()
-    let $conf = g:FastProject_DefaultConfigDir.g:FastProject_DefaultList
-    sp $conf
+    exec g:FastProject_ListWindowSize."sp ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultList
+endfunction
+function! s:FPMemo()
+    exec g:FastProject_MemoWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultMemo
+endfunction
+function! s:FPDownload()
+    exec g:FastProject_DownloadWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
+endfunction
+function! s:FPBookmark()
+    exec g:FastProject_BookmarkWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark
 endfunction
 
 function! s:FastProject(...)
     if a:0 != 0
-        let $dir = a:000[0]
-        cd $dir
+        exec 'cd '.a:000[0]
     endif
 
     call <SID>FPPoint()
-    e .vfp
+    exec 'e '.g:FastProject_DefaultConfigFile
 endfunction
 function! s:FPPoint()
     if !isdirectory(g:FastProject_DefaultConfigFile)
@@ -225,25 +228,37 @@ function! s:FPPoint()
         call system(cmd)
         echo cmd
         let path = matchlist(system('pwd'), '\v(.*)\n')[1]
-        call system('echo -e "'.path.'" >> '.$FastProject_DefaultList)
+        call system('echo -e "'.path.'" >> '.s:FastProject_DefaultList)
     else
         echo 'Project file already exists.'
     endif
 endfunction
 
 function! s:FPOpen()
+    let path = <SID>FPLineRead()
+    q
+    exec 'cd '.path
+    e .
+    exec 'echo "Project Open:'.path.'"'
+endfunction
+
+function! s:FPBrowseURI()
+  let uri = escape(matchstr(getline("."), '[a-z]*:\/\/[^ >,;:]*'), '#')
+  if uri != ""
+    call system("! open " . uri)
+  else
+    echo "No URI found in line."
+  endif
+endfunction
+
+function! s:FPLineRead()
     let reg = @@
 
     silent normal _vg_y
-    let $path = @@
-
-    q
-    cd $path
-    e .
-
+    let line = @@
     let @@ = reg
 
-    echo "Project Open:".$path
+    return line
 endfunction
 
 command! -nargs=* FP call s:FastProject(<f-args>)
@@ -253,6 +268,8 @@ command! FPCD call FPCD()
 command! FPTemplateEdit call s:FPTemplateEdit()
 command! FPList call s:FPList()
 command! FPOpen call s:FPOpen()
+command! FPBrowse call s:FPBrowseURI()
+command! FPWget call s:FPWget()
 
 command! FPRoot call FPEdit('.')
 command! FPSASS call FPEdit(g:FastProject_DefaultSASSDir)
@@ -261,20 +278,46 @@ command! FPIMG call FPEdit(g:FastProject_DefaultIMGDir)
 command! FPJS call FPEdit(g:FastProject_DefaultJSDir)
 
 command! FPCompassCreate call s:FPCompassCreate()
-command! FPSassStart call s:FPSassStart()
-command! FPSassStop call s:FPSassStop()
-command! FPStart call s:FPStart()
-command! FPStop call s:FPStop()
+command! FPSassCompile call s:FPSassCompile()
+
+command! FPDownload call s:FPDownload()
+command! FPMemo call s:FPMemo()
+command! FPBookmark call s:FPBookmark()
 
 function! s:FPSetBufMapProjectFile()
     nnoremap <buffer> e :FPInit<CR>
     nnoremap <buffer> <CR> :FPInit<CR>
+    nnoremap <buffer> q :q<CR>
 endfunction
-autocmd BufRead .vfp call <SID>FPSetBufMapProjectFile()
+exec 'autocmd BufRead '.g:FastProject_DefaultConfigFile.' call <SID>FPSetBufMapProjectFile()'
+
+function! s:FPSetBufMapProjectTemplateFile()
+    nnoremap <buffer> q :q<CR>
+endfunction
+exec 'autocmd BufRead '.g:FastProject_DefaultConfigFileTemplate.' call <SID>FPSetBufMapProjectTemplateFile()'
 
 function! s:FPSetBufMapProjectList()
     nnoremap <buffer> e :FPOpen<CR>
     nnoremap <buffer> <CR> :FPOpen<CR>
+    nnoremap <buffer> q :q<CR>
 endfunction
-autocmd BufRead .vfl call <SID>FPSetBufMapProjectList()
+exec 'autocmd BufRead '.g:FastProject_DefaultList.' call <SID>FPSetBufMapProjectList()'
 
+function! s:FPSetBufMapMemo()
+    nnoremap <buffer> q :q<CR>
+endfunction
+exec 'autocmd BufRead '.g:FastProject_DefaultMemo.' call <SID>FPSetBufMapMemo()'
+
+function! s:FPSetBufMapBookmark()
+    nnoremap <buffer> e :FPBrowse<CR>
+    nnoremap <buffer> <CR> :FPBrowse<CR>
+    nnoremap <buffer> q :q<CR>
+endfunction
+exec 'autocmd BufRead '.g:FastProject_DefaultBookmark.' call <SID>FPSetBufMapBookmark()'
+
+function! s:FPSetBufMapDownload()
+    nnoremap <buffer> e :FPWget<CR>
+    nnoremap <buffer> <CR> :FPWget<CR>
+    nnoremap <buffer> q :q<CR>
+endfunction
+exec 'autocmd BufRead '.g:FastProject_DefaultDownload.' call <SID>FPSetBufMapDownload()'
