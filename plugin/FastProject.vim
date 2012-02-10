@@ -6,6 +6,10 @@
 if !exists("g:FastProject_CDLoop")
     let g:FastProject_CDLoop = 5
 endif
+if !exists("g:FastProject_UseUnite")
+    let g:FastProject_UseUnite = 0
+    " let g:FastProject_UseUnite = 1
+endif
 if !exists("g:FastProject_SASSWatchStart")
     let g:FastProject_SASSWatchStart = 1
 endif
@@ -36,11 +40,11 @@ endif
 if !exists("g:FastProject_DefaultList")
     let g:FastProject_DefaultList = '.FastProject-List'
 endif
-if !exists("g:FastProject_DefaultList")
-    let g:FastProject_DefaultList = '.FastProject-List'
-endif
 if !exists("g:FastProject_DefaultMemo")
     let g:FastProject_DefaultMemo = '.FastProject-MEMO'
+endif
+if !exists("g:FastProject_DefaultToDo")
+    let g:FastProject_DefaultToDo = '.FastProject-ToDo'
 endif
 if !exists("g:FastProject_DefaultBookmark")
     let g:FastProject_DefaultBookmark = '.FastProject-Bookmark'
@@ -57,6 +61,9 @@ endif
 if !exists("g:FastProject_MemoWindowSize")
     let g:FastProject_MemoWindowSize = 50
 endif
+if !exists("g:FastProject_ToDoWindowSize")
+    let g:FastProject_ToDoWindowSize = 50
+endif
 if !exists("g:FastProject_BookmarkWindowSize")
     let g:FastProject_BookmarkWindowSize = 50
 endif
@@ -66,6 +73,7 @@ let s:FastProject_DefaultConfig = g:FastProject_DefaultConfigDir.g:FastProject_D
 let s:FastProject_DefaultList = g:FastProject_DefaultConfigDir.g:FastProject_DefaultList
 let s:FastProject_DefaultDownload = g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
 let s:FastProject_DefaultMemo = g:FastProject_DefaultConfigDir.g:FastProject_DefaultMemo
+let s:FastProject_DefaultToDo = g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
 let s:FastProject_DefaultBookmark = g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark
 if !isdirectory(g:FastProject_DefaultConfigDir)
     call mkdir(g:FastProject_DefaultConfigDir)
@@ -81,6 +89,9 @@ if !filereadable(s:FastProject_DefaultDownload)
 endif
 if !filereadable(s:FastProject_DefaultMemo)
     call system('echo -e "# Memo" > '.s:FastProject_DefaultMemo)
+endif
+if !filereadable(s:FastProject_DefaultToDo)
+    call system('echo -e "# ToDo" > '.s:FastProject_DefaultToDo)
 endif
 if !filereadable(s:FastProject_DefaultBookmark)
     call system('echo -e "# Bookmark" > '.s:FastProject_DefaultBookmark)
@@ -158,7 +169,12 @@ function! s:FPInit()
         call <SID>FPSassStart()
     endif
 
-    e .
+    if g:FastProject_UseUnite == 0
+        e .
+    else
+        exec 'nnoremap <silent> ;uw :<C-u>Unite -input='.%:h.'/ file<CR>'
+    endif
+
 
     echo "ALL Done!"
 endfunction
@@ -194,7 +210,11 @@ endfunction
 
 function! FPEdit(path)
     if FPCD() == 1
-        exec 'e '.a:path
+        if g:FastProject_UseUnite == 0
+            exec 'e '.a:path
+        else
+            exec 'Unite -input='.a:path.'/ file'
+        endif
     endif
 endfunction
 
@@ -206,6 +226,9 @@ function! s:FPList()
 endfunction
 function! s:FPMemo()
     exec g:FastProject_MemoWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultMemo
+endfunction
+function! s:FPToDo()
+    exec g:FastProject_ToDoWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
 endfunction
 function! s:FPDownload()
     exec g:FastProject_DownloadWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
@@ -238,7 +261,12 @@ function! s:FPOpen()
     let path = <SID>FPLineRead()
     q
     exec 'cd '.path
-    e .
+    if g:FastProject_UseUnite == 0
+        e .
+    else
+        exec 'Unite -input='.path.'/ file'
+    endif
+
     exec 'echo "Project Open:'.path.'"'
 endfunction
 
@@ -282,6 +310,7 @@ command! FPSassCompile call s:FPSassCompile()
 
 command! FPDownload call s:FPDownload()
 command! FPMemo call s:FPMemo()
+command! FPToDo call s:FPToDo()
 command! FPBookmark call s:FPBookmark()
 
 function! s:FPSetBufMapProjectFile()
@@ -307,6 +336,11 @@ function! s:FPSetBufMapMemo()
     nnoremap <buffer> q :q<CR>
 endfunction
 exec 'autocmd BufRead '.g:FastProject_DefaultMemo.' call <SID>FPSetBufMapMemo()'
+
+function! s:FPSetBufMapToDo()
+    nnoremap <buffer> q :q<CR>
+endfunction
+exec 'autocmd BufRead '.g:FastProject_DefaultToDo.' call <SID>FPSetBufMapToDo()'
 
 function! s:FPSetBufMapBookmark()
     nnoremap <buffer> e :FPBrowse<CR>
