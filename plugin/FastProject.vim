@@ -314,6 +314,7 @@ command! FPToDo call s:FPToDo()
 command! FPBookmark call s:FPBookmark()
 
 function! s:FPSetBufMapProjectFile()
+    set cursorline
     nnoremap <buffer> e :FPInit<CR>
     nnoremap <buffer> <CR> :FPInit<CR>
     nnoremap <buffer> q :q<CR>
@@ -321,11 +322,13 @@ endfunction
 exec 'autocmd BufRead '.g:FastProject_DefaultConfigFile.' call <SID>FPSetBufMapProjectFile()'
 
 function! s:FPSetBufMapProjectTemplateFile()
+    set cursorline
     nnoremap <buffer> q :q<CR>
 endfunction
 exec 'autocmd BufRead '.g:FastProject_DefaultConfigFileTemplate.' call <SID>FPSetBufMapProjectTemplateFile()'
 
 function! s:FPSetBufMapProjectList()
+    set cursorline
     nnoremap <buffer> e :FPOpen<CR>
     nnoremap <buffer> <CR> :FPOpen<CR>
     nnoremap <buffer> q :q<CR>
@@ -338,11 +341,13 @@ endfunction
 exec 'autocmd BufRead '.g:FastProject_DefaultMemo.' call <SID>FPSetBufMapMemo()'
 
 function! s:FPSetBufMapToDo()
+    set cursorline
     nnoremap <buffer> q :q<CR>
 endfunction
 exec 'autocmd BufRead '.g:FastProject_DefaultToDo.' call <SID>FPSetBufMapToDo()'
 
 function! s:FPSetBufMapBookmark()
+    set cursorline
     nnoremap <buffer> e :FPBrowse<CR>
     nnoremap <buffer> <CR> :FPBrowse<CR>
     nnoremap <buffer> q :q<CR>
@@ -350,6 +355,7 @@ endfunction
 exec 'autocmd BufRead '.g:FastProject_DefaultBookmark.' call <SID>FPSetBufMapBookmark()'
 
 function! s:FPSetBufMapDownload()
+    set cursorline
     nnoremap <buffer> e :FPWget<CR>
     nnoremap <buffer> <CR> :FPWget<CR>
     nnoremap <buffer> q :q<CR>
