@@ -102,6 +102,16 @@ endif
 
 exec 'au BufNewFile .vfp 0r '.s:FastProject_DefaultConfig
 
+if g:FastProject_CDAutoRoot == 1
+    au BufReadPost * exec FPCD() 
+endif
+" cursor move last change
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+au BufWritePost *.scss call <SID>FPSassCompile()
+au BufWritePost *.sass call <SID>FPSassCompile()
+au FileWritePost *.scss call <SID>FPSassCompile()
+au FileWritePost *.sass call <SID>FPSassCompile()
+
 
 function! s:FPGetGit(repo)
     let i = matchlist(a:repo, '\v(.*)/(.*)')[2]
@@ -155,8 +165,6 @@ function! s:FPSassCompile()
         endif
     endif
 endfunction 
-au BufWritePost .scss call <SID>FPSassCompile()
-au BufWritePost .sass call <SID>FPSassCompile()
 
 function! s:FPInit()
     echo "FastProject:"
@@ -182,7 +190,7 @@ function! s:FPInit()
 endfunction
 
 function! FPCD(...)
-    cd %:p:h
+    lcd %:p:h
 
     let i = 0
     let dir = './'
@@ -209,9 +217,6 @@ function! FPCD(...)
         return 1
     endif
 endfunction
-if g:FastProject_CDAutoRoot == 1
-    au BufEnter * exec FPCD() 
-endif
 
 function! FPEdit(path)
     if FPCD() == 1
@@ -417,8 +422,9 @@ exec 'au BufRead '.g:FastProject_DefaultMemo.' call <SID>FPSetBufMapMemo()'
 function! s:FPSetBufMapToDo()
     set cursorline
     inoremap <buffer><silent> <CR> <Esc>:FPCheckToDoStatus<CR>
+    inoremap <buffer><silent> <CR> <Esc>:FPCheckToDoStatus<CR>
     nnoremap <buffer><silent> <Space> <Esc>:FPChangeToDoStatus<CR>
-    nnoremap <buffer><silent> <CR> <Esc>:FPChangeToDoStatus<CR>
+    nnoremap <buffer><silent> <Tab> <Esc>:FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> <C-C> <Esc>:FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> q :q<CR>:FPToDoRemove<CR>
 endfunction
@@ -439,3 +445,4 @@ function! s:FPSetBufMapDownload()
     nnoremap <buffer><silent> q :q<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultDownload.' call <SID>FPSetBufMapDownload()'
+
