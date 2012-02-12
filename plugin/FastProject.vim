@@ -4,8 +4,8 @@
 "LICENSE:  todo
 
 if !exists("g:FastProject_PreCD")
-    " let g:FastProject_PreCD = ''
-    let g:FastProject_PreCD = $HOME.'/works'
+    let g:FastProject_PreCD = ''
+    " let g:FastProject_PreCD = $HOME.'/works'
 endif
 if !exists("g:FastProject_CDLoop")
     let g:FastProject_CDLoop = 5
@@ -88,6 +88,9 @@ endif
 if !exists("g:FastProject_BookmarkWindowSize")
     let g:FastProject_BookmarkWindowSize = 50
 endif
+if !exists("g:FastProject_SaveVimStatus")
+    let g:FastProject_SaveVimStatus = 1
+endif
 
 " config
 let s:FastProject_DefaultConfig = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
@@ -155,18 +158,16 @@ function! s:FPCompassCreate()
 endfunction
 
 function! s:FPSassCompile()
-    call FPCD()
+    silent call FPCD()
     let check = <SID>FPCompassCheck()
     if check == 1
-        let cmd = 'compass compile'
+        let cmd = 'compass compile&'
         call system(cmd)
-        echo cmd
     else
         let check = <SID>FPSassCheck()
         if check == 1
             let cmd = 'sass '.g:FastProject_DefaultSASSDir.':'.g:FastProject_DefaultCSSDir.'&'
             call system(cmd)
-            echo cmd
         endif
     endif
 endfunction 
@@ -194,7 +195,7 @@ function! s:FPInit()
 endfunction
 
 function! FPCD(...)
-    lcd %:p:h
+    silen cd %:p:h
 
     let i = 0
     let dir = './'
@@ -203,14 +204,14 @@ function! FPCD(...)
             let i = i + 1
             let dir = dir.'../'
         else
-            exec 'cd '.dir
+            exec 'silent cd '.dir
             break
         endif
     endwhile
 
     if a:0 != 0
         let dir = a:000[0]
-        exec 'cd '.dir
+        exec 'silent cd '.dir
     endif
 
     pwd
@@ -240,6 +241,7 @@ function! s:FPList()
     exec "topleft ".g:FastProject_ListWindowSize."sp ".file
     silent 2,%sort u
     sort u
+    w
 endfunction
 function! s:FPMemo()
     exec "botright ".g:FastProject_MemoWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultMemo
@@ -249,7 +251,7 @@ function! s:FPToDo()
 endfunction
 function! s:FPCheckToDoStatus()
     let todo = <SID>FPLineRead()
-    let i = matchlist(todo, '\v^(.*)\s(.*)')
+    let i = matchlist(todo, '\v^([-~/])\s(.*)')
     let flg = 0
     if i != []
         let st = i[1]
@@ -422,17 +424,19 @@ endfunction
 exec 'au BufRead '.g:FastProject_DefaultList.' call <SID>FPSetBufMapProjectList()'
 
 function! s:FPSetBufMapMemo()
+    nnoremap <buffer><silent> b :FPBrowse<CR>
     nnoremap <buffer><silent> q :q<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultMemo.' call <SID>FPSetBufMapMemo()'
 
 function! s:FPSetBufMapToDo()
     set cursorline
-    inoremap <buffer><silent> <CR> <Esc>:FPCheckToDoStatus<CR>
-    inoremap <buffer><silent> <CR> <Esc>:FPCheckToDoStatus<CR>
-    nnoremap <buffer><silent> <Space> <Esc>:FPChangeToDoStatus<CR>
-    nnoremap <buffer><silent> <Tab> <Esc>:FPChangeToDoStatus<CR>
-    nnoremap <buffer><silent> <C-C> <Esc>:FPChangeToDoStatus<CR>
+    inoremap <buffer><silent> <CR> <Esc>o- 
+    inoremap <buffer><silent> <Esc> <Esc>:FPCheckToDoStatus<CR>
+    nnoremap <buffer><silent> o o<Esc>:FPCheckToDoStatus<CR>a
+    nnoremap <buffer><silent> <Space> :FPChangeToDoStatus<CR>
+    nnoremap <buffer><silent> <Tab> :FPChangeToDoStatus<CR>
+    nnoremap <buffer><silent> <C-C> :FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> q :q<CR>:FPToDoRemove<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultToDo.' call <SID>FPSetBufMapToDo()'
@@ -453,6 +457,65 @@ function! s:FPSetBufMapDownload()
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultDownload.' call <SID>FPSetBufMapDownload()'
 
+let s:FPSavePointPath = g:FastProject_DefaultConfigDir.'save_status'
+set sessionoptions=blank,curdir,buffers,folds,help,globals,slash,tahpages,winsize,localoptions
+" 保存
+function! s:FPSaveWindow(file)
+    let options = [
+    \ 'set columns=' . &columns,
+    \ 'set lines=' . &lines,
+    \ 'winpos ' . getwinposx() . ' ' . getwinposy(),
+    \ ]
+    call writefile(options, a:file)
+endfunction
+
+function! s:FPSavePoint(dir)
+    if !isdirectory(a:dir)
+        call mkdir(a:dir)
+    endif
+    
+    if !filereadable(a:dir.'/vimwinpos.vim') || filewritable(a:dir.'/vimwinpos.vim')
+        if has("gui")
+            call s:FPSaveWindow(a:dir.'/vimwinpos.vim')
+        endif
+    endif
+
+    if !filereadable(a:dir.'/session.vim') || filewritable(a:dir.'/session.vim')
+        execute "mksession! ".a:dir."/session.vim"
+    endif
+
+    if !filereadable(a:dir.'/viminfo.vim') || filewritable(a:dir.'/viminfo.vim')
+        execute "wviminfo!  ".a:dir."/viminfo.vim"
+    endif
+endfunction
+
+function! s:FPLoadPoint(dir)
+    if filereadable(a:dir."/vimwinpos.vim") && has("gui")
+        execute "source ".a:dir."/vimwinpos.vim"
+    endif
+
+    if filereadable(a:dir."/session.vim")
+        execute "source ".a:dir."/session.vim"
+    endif
+
+    if filereadable(a:dir."/viminfo.vim")
+        execute "rviminfo ".a:dir."/viminfo.vim"
+    endif
+endfunction
+
+if g:FastProject_SaveVimStatus == 1
+    command! FPSavePoint :call s:FPSavePoint(s:FPSavePointPath)
+    command! FPLoadPoint :call s:FPLoadPoint(s:FPSavePointPath)
+
+    augroup SavePoint
+        autocmd!
+        autocmd VimLeavePre * FPSavePoint
+
+        autocmd CursorHold * FPSavePoint
+        autocmd VimEnter * FPLoadPoint
+    augroup END
+endif
+
 " init
 exec 'au BufNewFile .vfp 0r '.s:FastProject_DefaultConfig
 
@@ -463,6 +526,7 @@ endif
 if g:FastProject_AutoCursorLastChange == 1
     au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 endif
+" sass auto compile
 if g:FastProject_AutoSassCompile == 1
     au BufWritePost *.scss call <SID>FPSassCompile()
     au BufWritePost *.sass call <SID>FPSassCompile()
