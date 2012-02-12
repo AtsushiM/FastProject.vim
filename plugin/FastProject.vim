@@ -19,6 +19,10 @@ endif
 if !exists("g:FastProject_AutoSassCompile")
     let g:FastProject_AutoSassCompile = 1
 endif
+if !exists("g:FastProject_AutoMake")
+    let g:FastProject_AutoMake = []
+    " let g:FastProject_AutoMake = [ 'js' ]
+endif
 if !exists("g:FastProject_PreOpenList")
     let g:FastProject_PreOpenList = 0
 endif
@@ -89,7 +93,7 @@ if !exists("g:FastProject_BookmarkWindowSize")
     let g:FastProject_BookmarkWindowSize = 50
 endif
 if !exists("g:FastProject_SaveVimStatus")
-    let g:FastProject_SaveVimStatus = 1
+    let g:FastProject_SaveVimStatus = 0
 endif
 
 " config
@@ -150,7 +154,6 @@ function! s:FPSassCheck()
     endif
     return 0
 endfunction
-
 function! s:FPCompassCreate()
     let cmd = 'compass create --sass-dir "'.g:FastProject_DefaultSASSDir.'" --css-dir "'.g:FastProject_DefaultCSSDir.'"'
     call system(cmd)
@@ -171,6 +174,21 @@ function! s:FPSassCompile()
         endif
     endif
 endfunction 
+
+function! s:FPMakeFileCheck()
+    if filereadable(s:FastProject_DefaultList)
+        return 1
+    endif
+    return 0
+endfunction
+function! s:FPMake()
+    silent call FPCD()
+    let check = <SID>FPMakeFileCheck()
+    if check == 1
+        let cmd = 'make&'
+        call system(cmd)
+    endif
+endfunction
 
 function! s:FPInit()
     echo "FastProject:"
@@ -392,6 +410,7 @@ command! FPJS call FPEdit(g:FastProject_DefaultJSDir)
 
 command! FPCompassCreate call s:FPCompassCreate()
 command! FPSassCompile call s:FPSassCompile()
+command! FPMake call s:FPMake()
 
 command! FPDownload call s:FPDownload()
 command! FPMemo call s:FPMemo()
@@ -530,8 +549,12 @@ endif
 if g:FastProject_AutoSassCompile == 1
     au BufWritePost *.scss call <SID>FPSassCompile()
     au BufWritePost *.sass call <SID>FPSassCompile()
-    au FileWritePost *.scss call <SID>FPSassCompile()
-    au FileWritePost *.sass call <SID>FPSassCompile()
+endif
+" auto make
+if g:FastProject_AutoMake != []
+    for e in g:FastProject_AutoMake
+        exec 'au BufWritePost *.'.e.' call <SID>FPMake()'
+    endfor
 endif
 
 if g:FastProject_PreCD != ''
