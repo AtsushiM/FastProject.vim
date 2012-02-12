@@ -284,6 +284,7 @@ function! s:FPChangeToDoStatus()
 
     exec 'silent normal ^xxi'.st.' '
     silent normal ^ll
+    silen w
 endfunction
 function! s:FPToDoRemove()
     let file = g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
@@ -459,7 +460,6 @@ exec 'au BufRead '.g:FastProject_DefaultDownload.' call <SID>FPSetBufMapDownload
 
 let s:FPSavePointPath = g:FastProject_DefaultConfigDir.'save_status'
 set sessionoptions=blank,curdir,buffers,folds,help,globals,slash,tahpages,winsize,localoptions
-" 保存
 function! s:FPSaveWindow(file)
     let options = [
     \ 'set columns=' . &columns,
