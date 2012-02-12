@@ -3,15 +3,33 @@
 "VERSION:  0.1
 "LICENSE:  todo
 
+if !exists("g:FastProject_PreCD")
+    " let g:FastProject_PreCD = ''
+    let g:FastProject_PreCD = $HOME.'/works'
+endif
 if !exists("g:FastProject_CDLoop")
     let g:FastProject_CDLoop = 5
 endif
-if !exists("g:FastProject_CDAutoRoot")
-    let g:FastProject_CDAutoRoot = 1
+if !exists("g:FastProject_AutoCDRoot")
+    let g:FastProject_AutoCDRoot = 1
+endif
+if !exists("g:FastProject_AutoCursorLastChange")
+    let g:FastProject_AutoCursorLastChange = 1
+endif
+if !exists("g:FastProject_AutoSassCompile")
+    let g:FastProject_AutoSassCompile = 1
+endif
+if !exists("g:FastProject_PreOpenList")
+    let g:FastProject_PreOpenList = 0
+endif
+if !exists("g:FastProject_PreOpenToDo")
+    let g:FastProject_PreOpenToDo = 0
+endif
+if !exists("g:FastProject_PreOpenMemo")
+    let g:FastProject_PreOpenMemo = 0
 endif
 if !exists("g:FastProject_UseUnite")
     let g:FastProject_UseUnite = 0
-    " let g:FastProject_UseUnite = 1
 endif
 if !exists("g:FastProject_SASSWatchStart")
     let g:FastProject_SASSWatchStart = 1
@@ -100,19 +118,6 @@ if !filereadable(s:FastProject_DefaultBookmark)
     call system('echo -e "# Bookmark" > '.s:FastProject_DefaultBookmark)
 endif
 
-exec 'au BufNewFile .vfp 0r '.s:FastProject_DefaultConfig
-
-if g:FastProject_CDAutoRoot == 1
-    au BufReadPost * exec FPCD() 
-endif
-" cursor move last change
-au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
-au BufWritePost *.scss call <SID>FPSassCompile()
-au BufWritePost *.sass call <SID>FPSassCompile()
-au FileWritePost *.scss call <SID>FPSassCompile()
-au FileWritePost *.sass call <SID>FPSassCompile()
-
-
 function! s:FPGetGit(repo)
     let i = matchlist(a:repo, '\v(.*)/(.*)')[2]
     echo 'Start GetGit:'
@@ -174,7 +179,6 @@ function! s:FPInit()
     call <SID>FPGetGit(repo)
 
     call system('echo -e "# '.repo.'" > '.g:FastProject_DefaultConfigFile)
-    echo 'overwrite ConfigFile'
 
     if g:FastProject_SASSWatchStart == 1
         call <SID>FPSassStart()
@@ -183,7 +187,7 @@ function! s:FPInit()
     if g:FastProject_UseUnite == 0
         e .
     else
-        exec 'nnoremap <silent> ;uw :<C-u>Unite -input='.%:p:h.'/ file<CR>'
+        exec 'Unite -input='.%:p:h.'/ file<CR>'
     endif
 
     echo "ALL Done!"
@@ -229,16 +233,19 @@ function! FPEdit(path)
 endfunction
 
 function! s:FPTemplateEdit()
-    exec g:FastProject_TemplateWindowSize."sp ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
+    exec "topleft ".g:FastProject_TemplateWindowSize."sp ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
 endfunction
 function! s:FPList()
-    exec g:FastProject_ListWindowSize."sp ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultList
+    let file = g:FastProject_DefaultConfigDir.g:FastProject_DefaultList
+    exec "topleft ".g:FastProject_ListWindowSize."sp ".file
+    silent 2,%sort u
+    sort u
 endfunction
 function! s:FPMemo()
-    exec g:FastProject_MemoWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultMemo
+    exec "botright ".g:FastProject_MemoWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultMemo
 endfunction
 function! s:FPToDo()
-    exec g:FastProject_ToDoWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
+    exec "topleft ".g:FastProject_ToDoWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
 endfunction
 function! s:FPCheckToDoStatus()
     let todo = <SID>FPLineRead()
@@ -446,3 +453,33 @@ function! s:FPSetBufMapDownload()
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultDownload.' call <SID>FPSetBufMapDownload()'
 
+" init
+exec 'au BufNewFile .vfp 0r '.s:FastProject_DefaultConfig
+
+if g:FastProject_AutoCDRoot == 1
+    au BufReadPost * exec FPCD() 
+endif
+" cursor move last change
+if g:FastProject_AutoCursorLastChange == 1
+    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+endif
+if g:FastProject_AutoSassCompile == 1
+    au BufWritePost *.scss call <SID>FPSassCompile()
+    au BufWritePost *.sass call <SID>FPSassCompile()
+    au FileWritePost *.scss call <SID>FPSassCompile()
+    au FileWritePost *.sass call <SID>FPSassCompile()
+endif
+
+if g:FastProject_PreCD != ''
+    exec 'cd '.g:FastProject_PreCD
+endif
+
+if g:FastProject_PreOpenList == 1
+    FPList
+endif
+if g:FastProject_PreOpenToDo == 1
+    FPToDo
+endif
+if g:FastProject_PreOpenMemo == 1
+    FPMemo
+endif
