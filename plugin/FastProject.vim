@@ -33,7 +33,8 @@ if !exists("g:FastProject_PreOpenMemo")
     let g:FastProject_PreOpenMemo = 0
 endif
 if !exists("g:FastProject_UseUnite")
-    let g:FastProject_UseUnite = 0
+    " let g:FastProject_UseUnite = 0
+    let g:FastProject_UseUnite = 1
 endif
 if !exists("g:FastProject_SASSWatchStart")
     let g:FastProject_SASSWatchStart = 1
@@ -197,7 +198,7 @@ function! s:FPInit()
     let repo = <SID>FPLineRead()
     call <SID>FPGetGit(repo)
 
-    call system('echo -e "# '.repo.'" > '.g:FastProject_DefaultConfigFile)
+    " call system('echo -e "# '.repo.'" > '.g:FastProject_DefaultConfigFile)
 
     if g:FastProject_SASSWatchStart == 1
         call <SID>FPSassStart()
@@ -246,7 +247,8 @@ function! FPEdit(path)
         if g:FastProject_UseUnite == 0
             exec 'e '.a:path
         else
-            exec 'Unite -input='.a:path.' file'
+            let path = matchlist(system('pwd'), '\v(.*)\n')[1]
+            exec 'Unite -input='.path.'/'.a:path.'/ file'
         endif
     endif
 endfunction
@@ -310,7 +312,7 @@ function! s:FPToDoRemove()
     let ret = ''
     for e in todo
         let i = matchlist(e, '\v^(/)(.*)')
-        if i == []
+        if i == [] && e != ''
             let ret = ret.e.'\n'
         endif
     endfor
@@ -350,7 +352,7 @@ function! s:FPProjectFileDelete()
     call <SID>FPDelete(path)
 endfunction
 function! s:FPDelete(path)
-    if !isdirectory(a:path)
+    if filereadable(a:path)
         let cmd = 'rm '.a:path
         call system(cmd)
         echo cmd
@@ -368,8 +370,8 @@ function! s:FPOpen()
     else
         exec 'Unite -input='.path.'/ file'
     endif
-
     exec 'echo "Project Open:'.path.'"'
+    call <SID>FPPoint()
 endfunction
 
 function! s:FPBrowseURI()
@@ -424,13 +426,13 @@ function! s:FPSetBufMapProjectFile()
     set cursorline
     nnoremap <buffer><silent> e :FPInit<CR>
     nnoremap <buffer><silent> <CR> :FPInit<CR>
-    nnoremap <buffer><silent> q :q<CR>
+    nnoremap <buffer><silent> q :bw %<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultConfigFile.' call <SID>FPSetBufMapProjectFile()'
 
 function! s:FPSetBufMapProjectTemplateFile()
     set cursorline
-    nnoremap <buffer><silent> q :q<CR>
+    nnoremap <buffer><silent> q :bw %<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultConfigFileTemplate.' call <SID>FPSetBufMapProjectTemplateFile()'
 
@@ -438,26 +440,27 @@ function! s:FPSetBufMapProjectList()
     set cursorline
     nnoremap <buffer><silent> e :FPOpen<CR>
     nnoremap <buffer><silent> <CR> :FPOpen<CR>
-    nnoremap <buffer><silent> q :q<CR>
+    nnoremap <buffer><silent> q :bw %<CR>
     nnoremap <buffer><silent> dd :FPProjectFileDelete<CR>dd
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultList.' call <SID>FPSetBufMapProjectList()'
 
 function! s:FPSetBufMapMemo()
     nnoremap <buffer><silent> b :FPBrowse<CR>
-    nnoremap <buffer><silent> q :q<CR>
+    nnoremap <buffer><silent> q :bw %<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultMemo.' call <SID>FPSetBufMapMemo()'
 
 function! s:FPSetBufMapToDo()
     set cursorline
+    " vertical res 50
     inoremap <buffer><silent> <CR> <Esc>o- 
     inoremap <buffer><silent> <Esc> <Esc>:FPCheckToDoStatus<CR>
     nnoremap <buffer><silent> o o<Esc>:FPCheckToDoStatus<CR>a
     nnoremap <buffer><silent> <Space> :FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> <Tab> :FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> <C-C> :FPChangeToDoStatus<CR>
-    nnoremap <buffer><silent> q :q<CR>:FPToDoRemove<CR>
+    nnoremap <buffer><silent> q :bw %<CR>:FPToDoRemove<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultToDo.' call <SID>FPSetBufMapToDo()'
 
@@ -465,7 +468,7 @@ function! s:FPSetBufMapBookmark()
     set cursorline
     nnoremap <buffer><silent> e :FPBrowse<CR>
     nnoremap <buffer><silent> <CR> :FPBrowse<CR>
-    nnoremap <buffer><silent> q :q<CR>
+    nnoremap <buffer><silent> q :bw %<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultBookmark.' call <SID>FPSetBufMapBookmark()'
 
@@ -473,7 +476,7 @@ function! s:FPSetBufMapDownload()
     set cursorline
     nnoremap <buffer><silent> e :FPWget<CR>
     nnoremap <buffer><silent> <CR> :FPWget<CR>
-    nnoremap <buffer><silent> q :q<CR>
+    nnoremap <buffer><silent> q :bw %<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultDownload.' call <SID>FPSetBufMapDownload()'
 
@@ -570,3 +573,5 @@ endif
 if g:FastProject_PreOpenMemo == 1
     FPMemo
 endif
+
+let g:unite_source_file_mru_ignore_pattern = '.*\.vimfastproject.*'
