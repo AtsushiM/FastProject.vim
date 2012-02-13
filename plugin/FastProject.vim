@@ -61,7 +61,7 @@ if !exists("g:FastProject_DefaultConfigFileTemplate")
     let g:FastProject_DefaultConfigFileTemplate = '.vfp.template'
 endif
 if !exists("g:FastProject_DefaultDownload")
-    let g:FastProject_DefaultDownload = '.FastProject-DownloadList'
+    let g:FastProject_DefaultDownload = '.FastProject-Download'
 endif
 if !exists("g:FastProject_DefaultList")
     let g:FastProject_DefaultList = '.FastProject-List'
@@ -335,6 +335,7 @@ function! s:FastProject(...)
     exec 'e '.g:FastProject_DefaultConfigFile
 endfunction
 function! s:FPPoint()
+    cd %:p:h
     if !isdirectory(g:FastProject_DefaultConfigFile)
         let cmd = 'cp '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate.' '.g:FastProject_DefaultConfigFile
         call system(cmd)
@@ -573,5 +574,3 @@ endif
 if g:FastProject_PreOpenMemo == 1
     FPMemo
 endif
-
-let g:unite_source_file_mru_ignore_pattern = '.*\.vimfastproject.*'
