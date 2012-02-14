@@ -1,7 +1,9 @@
 "AUTHOR:   Atsushi Mizoue <asionfb@gmail.com>
 "WEBSITE:  https://github.com/AtsushiM/FastProject.vim
 "VERSION:  0.1
-"LICENSE:  todo
+"LICENSE:  MIT
+
+" source ~/.vim/vimrc_secret.vim
 
 if !exists("g:FastProject_PreCD")
     let g:FastProject_PreCD = ''
@@ -11,7 +13,7 @@ if !exists("g:FastProject_CDLoop")
     let g:FastProject_CDLoop = 5
 endif
 if !exists("g:FastProject_AutoCDRoot")
-    let g:FastProject_AutoCDRoot = 1
+    let g:FastProject_AutoCDRoot = 0
 endif
 if !exists("g:FastProject_AutoCursorLastChange")
     let g:FastProject_AutoCursorLastChange = 1
@@ -54,6 +56,9 @@ endif
 if !exists("g:FastProject_DefaultConfigDir")
     let g:FastProject_DefaultConfigDir = $HOME.'/.vimfastproject/'
 endif
+if !exists("g:FastProject_DefaultTempDir")
+    let g:FastProject_DefaultTempDir = g:FastProject_DefaultConfigDir.'temp/'
+endif
 if !exists("g:FastProject_DefaultConfigFile")
     let g:FastProject_DefaultConfigFile = '.vfp'
 endif
@@ -61,19 +66,19 @@ if !exists("g:FastProject_DefaultConfigFileTemplate")
     let g:FastProject_DefaultConfigFileTemplate = '.vfp.template'
 endif
 if !exists("g:FastProject_DefaultDownload")
-    let g:FastProject_DefaultDownload = '.FastProject-Download'
+    let g:FastProject_DefaultDownload = '~FastProject-Download~'
 endif
 if !exists("g:FastProject_DefaultList")
-    let g:FastProject_DefaultList = '.FastProject-List'
+    let g:FastProject_DefaultList = '~FastProject-List~'
 endif
 if !exists("g:FastProject_DefaultMemo")
-    let g:FastProject_DefaultMemo = '.FastProject-MEMO'
+    let g:FastProject_DefaultMemo = '~FastProject-MEMO~'
 endif
 if !exists("g:FastProject_DefaultToDo")
-    let g:FastProject_DefaultToDo = '.FastProject-ToDo'
+    let g:FastProject_DefaultToDo = '~FastProject-ToDo~'
 endif
 if !exists("g:FastProject_DefaultBookmark")
-    let g:FastProject_DefaultBookmark = '.FastProject-Bookmark'
+    let g:FastProject_DefaultBookmark = '~FastProject-Bookmark~'
 endif
 if !exists("g:FastProject_TemplateWindowSize")
     let g:FastProject_TemplateWindowSize = 15
@@ -136,7 +141,7 @@ function! s:FPGetGit(repo)
 endfunction
 
 function! s:FPWget()
-    let url = <SID>FPLineRead()
+    let url = getline('.')
     echo url
     let cmd = 'wget '.url
     call system(cmd)
@@ -162,6 +167,7 @@ function! s:FPCompassCreate()
 endfunction
 
 function! s:FPSassCompile()
+    let dir = getcwd()
     silent call FPCD()
     let check = <SID>FPCompassCheck()
     if check == 1
@@ -174,6 +180,7 @@ function! s:FPSassCompile()
             call system(cmd)
         endif
     endif
+    exec 'silent cd '.dir
 endfunction 
 
 function! s:FPMakeFileCheck()
@@ -183,41 +190,37 @@ function! s:FPMakeFileCheck()
     return 0
 endfunction
 function! s:FPMake()
+    let dir = getcwd()
     silent call FPCD()
+
     let check = <SID>FPMakeFileCheck()
     if check == 1
         let cmd = 'make&'
         call system(cmd)
     endif
+
+    exec 'silent cd '.dir
 endfunction
 
 function! s:FPInit()
     echo "FastProject:"
 
     cd %:p:h
-    let repo = <SID>FPLineRead()
+    let repo = getline('.')
     call <SID>FPGetGit(repo)
-
-    " call system('echo -e "# '.repo.'" > '.g:FastProject_DefaultConfigFile)
-
-    if g:FastProject_SASSWatchStart == 1
-        call <SID>FPSassStart()
-    endif
 
     if g:FastProject_UseUnite == 0
         e .
     else
-        exec 'Unite -input='.%:p:h.'/ file<CR>'
+        exec 'Unite -input='.expand('%:p:h').'/ file'
     endif
 
     echo "ALL Done!"
 endfunction
 
-function! FPCD(...)
-    silen cd %:p:h
-
+function! s:FPRootPath()
     let i = 0
-    let dir = './'
+    let dir = expand('%:p:h').'/'
     while i < g:FastProject_CDLoop
         if !filereadable(dir.g:FastProject_DefaultConfigFile)
             let i = i + 1
@@ -228,14 +231,27 @@ function! FPCD(...)
         endif
     endwhile
 
-    if a:0 != 0
-        let dir = a:000[0]
+    if i == g:FastProject_CDLoop
+        return ''
+    else
+        return dir
+    endif
+endfunction
+
+function! FPCD(...)
+    let dir = <SID>FPRootPath()
+    let root = dir
+    if dir != '' && a:0 != 0
+        let dir = dir.a:000[0]
+    endif
+
+    if root != ''
         exec 'silent cd '.dir
     endif
 
     pwd
 
-    if i == g:FastProject_CDLoop
+    if root == ''
         return 0
     else
         return 1
@@ -270,7 +286,7 @@ function! s:FPToDo()
     exec "topleft ".g:FastProject_ToDoWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
 endfunction
 function! s:FPCheckToDoStatus()
-    let todo = <SID>FPLineRead()
+    let todo = getline('.')
     let i = matchlist(todo, '\v^([-~/])\s(.*)')
     let flg = 0
     if i != []
@@ -331,12 +347,12 @@ function! s:FastProject(...)
         exec 'cd '.a:000[0]
     endif
 
-    call <SID>FPPoint()
+    call <SID>FPAdd()
     exec 'e '.g:FastProject_DefaultConfigFile
 endfunction
-function! s:FPPoint()
+function! s:FPAdd()
     cd %:p:h
-    if !isdirectory(g:FastProject_DefaultConfigFile)
+    if !filereadable(g:FastProject_DefaultConfigFile)
         let cmd = 'cp '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate.' '.g:FastProject_DefaultConfigFile
         call system(cmd)
         echo cmd
@@ -347,14 +363,14 @@ function! s:FPPoint()
     endif
 endfunction
 function! s:FPProjectFileDelete()
-    let path = <SID>FPLineRead()
+    let path = getline('.')
     let path = path.'/'.g:FastProject_DefaultConfigFile
     echo path
     call <SID>FPDelete(path)
 endfunction
 function! s:FPDelete(path)
     if filereadable(a:path)
-        let cmd = 'rm '.a:path
+        let cmd = 'rm -rf '.a:path
         call system(cmd)
         echo cmd
     else
@@ -363,7 +379,7 @@ function! s:FPDelete(path)
 endfunction
 
 function! s:FPOpen()
-    let path = <SID>FPLineRead()
+    let path = getline('.')
     q
     exec 'cd '.path
     if g:FastProject_UseUnite == 0
@@ -372,7 +388,7 @@ function! s:FPOpen()
         exec 'Unite -input='.path.'/ file'
     endif
     exec 'echo "Project Open:'.path.'"'
-    call <SID>FPPoint()
+    call <SID>FPAdd()
 endfunction
 
 function! s:FPBrowseURI()
@@ -384,18 +400,18 @@ function! s:FPBrowseURI()
   endif
 endfunction
 
-function! s:FPLineRead()
-    let reg = @@
-
-    silent normal _vg_y
-    let line = @@
-    let @@ = reg
-
-    return line
-endfunction
+" function! s:FPLineRead()
+"     let reg = @@
+" 
+"     silent normal _vg_y
+"     let line = @@
+"     let @@ = reg
+" 
+"     return line
+" endfunction
 
 command! -nargs=* FP call s:FastProject(<f-args>)
-command! FPPoint call s:FPPoint()
+command! FPAdd call s:FPAdd()
 command! FPInit call s:FPInit()
 command! FPCD call FPCD()
 command! FPTemplateEdit call s:FPTemplateEdit()
@@ -458,6 +474,7 @@ function! s:FPSetBufMapToDo()
     inoremap <buffer><silent> <CR> <Esc>o- 
     inoremap <buffer><silent> <Esc> <Esc>:FPCheckToDoStatus<CR>
     nnoremap <buffer><silent> o o<Esc>:FPCheckToDoStatus<CR>a
+    nnoremap <buffer><silent> O O<Esc>:FPCheckToDoStatus<CR>a
     nnoremap <buffer><silent> <Space> :FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> <Tab> :FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> <C-C> :FPChangeToDoStatus<CR>
@@ -538,9 +555,6 @@ if g:FastProject_SaveVimStatus == 1
         autocmd VimEnter * FPLoadPoint
     augroup END
 endif
-
-" init
-exec 'au BufNewFile .vfp 0r '.s:FastProject_DefaultConfig
 
 if g:FastProject_AutoCDRoot == 1
     au BufReadPost * exec FPCD() 
