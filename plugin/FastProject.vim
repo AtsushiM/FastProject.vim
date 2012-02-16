@@ -3,6 +3,10 @@
 "VERSION:  0.1
 "LICENSE:  MIT
 
+let g:FastProject_PluginDir = expand('<sfile>:p:h:h').'/'
+let g:FastProject_TemplateDir = g:FastProject_PluginDir.'template/'
+let g:FastProject_SubDir = g:FastProject_PluginDir.'sub/'
+
 if !exists("g:FastProject_AutoCursorLastChange")
     let g:FastProject_AutoCursorLastChange = 1
 endif
@@ -31,6 +35,10 @@ endif
 if !exists("g:FastProject_ListWindowSize")
     let g:FastProject_ListWindowSize = 15
 endif
+if !exists("g:FastProject_SubLoad")
+    let g:FastProject_SubLoad = ['bookmark', 'download', 'memo', 'todo'] 
+endif
+
 
 " config
 let s:FastProject_DefaultConfig = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
@@ -39,10 +47,17 @@ if !isdirectory(g:FastProject_DefaultConfigDir)
     call mkdir(g:FastProject_DefaultConfigDir)
 endif
 if !filereadable(s:FastProject_DefaultConfig)
-    call system('echo -e "# Select Template\nAtsushiM/test-template\n" > '.s:FastProject_DefaultConfig)
+    call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultConfigFileTemplate.' '.s:FastProject_DefaultConfig)
 endif
 if !filereadable(s:FastProject_DefaultList)
-    call system('echo -e "# Project List" > '.s:FastProject_DefaultList)
+    call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultList.' '.s:FastProject_DefaultList)
+endif
+
+" sub
+if g:FastProject_SubLoad != []
+    for e in g:FastProject_SubLoad
+        exec 'source '.g:FastProject_SubDir.e.'.vim'
+    endfor
 endif
 
 function! s:FPGetGit(repo)
