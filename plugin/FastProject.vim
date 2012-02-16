@@ -187,3 +187,20 @@ endif
 if g:FastProject_PreOpenList == 1
     FPList
 endif
+
+if g:FastProject_UseUnite == 1
+    let s:unite_source = {
+    \   'name': 'fastproject',
+    \ }
+    function! s:unite_source.gather_candidates(args, context)
+      let lines = readfile(g:FastProject_DefaultConfigDir.g:FastProject_DefaultList)
+      return map(lines, '{
+      \   "word": v:val,
+      \   "source": "fastproject",
+      \   "kind": "command",
+      \   "action__command": "cd ".v:val."|Unite -input=".v:val."/ file",
+      \ }')
+    endfunction
+    call unite#define_source(s:unite_source)
+    unlet s:unite_source
+endif
