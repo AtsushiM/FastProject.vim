@@ -120,7 +120,7 @@ function! s:FPDelete(path)
         call system(cmd)
         echo cmd
     else
-        echo 'No Project File.'
+        echo 'No File: '.a:path
     endif
 endfunction
 
