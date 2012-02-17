@@ -14,7 +14,6 @@ if !exists("g:FastProject_PreOpenList")
     let g:FastProject_PreOpenList = 0
 endif
 if !exists("g:FastProject_UseUnite")
-    " let g:FastProject_UseUnite = 0
     let g:FastProject_UseUnite = 1
 endif
 if !exists("g:FastProject_DefaultConfigDir")
@@ -29,11 +28,17 @@ endif
 if !exists("g:FastProject_DefaultList")
     let g:FastProject_DefaultList = '~FastProject-List~'
 endif
+if !exists("g:FastProject_DefaultConfig")
+    let g:FastProject_DefaultConfig = '~config.vim'
+endif
 if !exists("g:FastProject_TemplateWindowSize")
     let g:FastProject_TemplateWindowSize = 15
 endif
 if !exists("g:FastProject_ListWindowSize")
     let g:FastProject_ListWindowSize = 15
+endif
+if !exists("g:FastProject_ConfigWindowSize")
+    let g:FastProject_ConfigWindowSize = 15
 endif
 if !exists("g:FastProject_SubLoad")
     let g:FastProject_SubLoad = ['bookmark', 'download', 'memo', 'todo'] 
@@ -41,24 +46,32 @@ endif
 
 
 " config
-let s:FastProject_DefaultConfig = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
+let s:FastProject_DefaulTemplate = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
 let s:FastProject_DefaultList = g:FastProject_DefaultConfigDir.g:FastProject_DefaultList
 if !isdirectory(g:FastProject_DefaultConfigDir)
     call mkdir(g:FastProject_DefaultConfigDir)
 endif
-if !filereadable(s:FastProject_DefaultConfig)
-    call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultConfigFileTemplate.' '.s:FastProject_DefaultConfig)
+if !filereadable(s:FastProject_DefaulTemplate)
+    call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultConfigFileTemplate.' '.s:FastProject_DefaulTemplate)
 endif
 if !filereadable(s:FastProject_DefaultList)
     call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultList.' '.s:FastProject_DefaultList)
 endif
 
-" sub
+" sub include
 if g:FastProject_SubLoad != []
     for e in g:FastProject_SubLoad
         exec 'source '.g:FastProject_SubDir.e.'.vim'
     endfor
 endif
+
+" config
+let s:FastProject_DefaultConfig = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfig
+if !filereadable(s:FastProject_DefaultConfig)
+    call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultConfig.' '.s:FastProject_DefaultConfig)
+endif
+exec 'source '.s:FastProject_DefaultConfig
+
 
 function! s:FPGetGit(repo)
     let i = matchlist(a:repo, '\v(.*)/(.*)')[2]
@@ -101,6 +114,11 @@ function! s:FPList()
     exec "topleft ".g:FastProject_ListWindowSize."sp ".file
     silent sort u
     w
+endfunction
+
+function! s:FPConfig()
+    let file = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfig
+    exec "botright ".g:FastProject_ConfigWindowSize."sp ".file
 endfunction
 
 function! s:FastProject(...)
@@ -166,6 +184,7 @@ command! FPAdd call s:FPAdd()
 command! FPInit call s:FPInit()
 command! FPTemplateEdit call s:FPTemplateEdit()
 command! FPList call s:FPList()
+command! FPConfig call s:FPConfig()
 command! FPOpen call s:FPOpen()
 command! FPBrowse call s:FPBrowseURI()
 command! FPWget call s:FPWget()
@@ -193,6 +212,11 @@ function! s:FPSetBufMapProjectList()
     nnoremap <buffer><silent> dd :FPProjectFileDelete<CR>dd
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultList.' call <SID>FPSetBufMapProjectList()'
+
+function! s:FPSetBufMapConfig()
+    nnoremap <buffer><silent> q :source %<CR>:bw %<CR>
+endfunction
+exec 'au BufRead '.g:FastProject_DefaultConfig.' call <SID>FPSetBufMapConfig()'
 
 " cursor move last change
 if g:FastProject_AutoCursorLastChange == 1
