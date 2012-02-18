@@ -3,9 +3,6 @@
 "VERSION:  0.1
 "LICENSE:  MIT
 
-if !exists("g:FastProject_PreCD")
-    let g:FastProject_PreCD = ''
-endif
 if !exists("g:FastProject_CDLoop")
     let g:FastProject_CDLoop = 5
 endif
