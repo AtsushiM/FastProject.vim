@@ -35,7 +35,7 @@ if !exists("g:FastProject_ConfigWindowSize")
     let g:FastProject_ConfigWindowSize = 'topleft vs'
 endif
 if !exists("g:FastProject_SubLoad")
-    let g:FastProject_SubLoad = ['bookmark', 'download', 'memo', 'todo'] 
+    let g:FastProject_SubLoad = ['make', 'sass', 'save_status', 'bookmark', 'download', 'memo', 'todo'] 
 endif
 
 
