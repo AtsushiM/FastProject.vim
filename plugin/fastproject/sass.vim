@@ -20,10 +20,25 @@ function! s:FPCompassCheck()
     return 0
 endfunction
 function! s:FPSassCheck()
-    if isdirectory(g:FastProject_DefaultSASSDir) && isdirectory(g:FastProject_DefaultCSSDir)
-        return 1
+    let sass = ''
+    for e in g:FastProject_DefaultSASSDir
+        if isdirectory(e)
+            let sass = e
+            break
+        endif
+    endfor
+
+    let css = ''
+    for e in g:FastProject_DefaultCSSDir
+        if isdirectory(e)
+            let css = e
+            break
+        endif
+    endfor
+    if sass != '' && css != ''
+        return [sass, css]
     endif
-    return 0
+    return []
 endfunction
 
 function! s:FPCompassCreate()
@@ -40,9 +55,10 @@ function! s:FPSassCompile()
         let cmd = 'compass compile&'
         call system(cmd)
     else
+        unlet check
         let check = <SID>FPSassCheck()
-        if check == 1
-            let cmd = 'sass --update '.g:FastProject_DefaultSASSDir.':'.g:FastProject_DefaultCSSDir.'&'
+        if check != []
+            let cmd = 'sass --update '.check[0].':'.check[1].'&'
             call system(cmd)
         endif
     endif
