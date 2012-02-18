@@ -1,6 +1,6 @@
 "AUTHOR:   Atsushi Mizoue <asionfb@gmail.com>
 "WEBSITE:  https://github.com/AtsushiM/FastProject.vim
-"VERSION:  0.1
+"VERSION:  0.9
 "LICENSE:  MIT
 
 if !exists("g:FastProject_DefaultToDo")
@@ -69,15 +69,39 @@ function! s:FPToDoRemove()
 
     call system('echo -e "'.ret.'" > '.file)
 endfunction
+function! FPToDoSort()
+    let file = g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
+    let todo = readfile(file)
+    let ret_normal = ''
+    let ret_action = ''
+    let ret_end = ''
+    for e in todo
+        let i = matchlist(e, '\v^(.)\s(.*)')
+        if i != []
+            if i[1] == '-'
+                let ret_normal = ret_normal.e.'\n'
+            elseif i[1] == '~'
+                let ret_action = ret_action.e.'\n'
+            else
+                let ret_end = ret_end.e.'\n'
+            endif
+        endif
+    endfor
+
+    " join
+    let ret = ret_action.ret_normal.ret_end
+
+    call system('echo -e "'.ret.'" > '.file)
+endfunction
 
 command! FPToDo call s:FPToDo()
 command! FPCheckToDoStatus call s:FPCheckToDoStatus()
 command! FPChangeToDoStatus call s:FPChangeToDoStatus()
+command! FPToDoSort call FPToDoSort()
 command! FPToDoRemove call s:FPToDoRemove()
 
 function! s:FPSetBufMapToDo()
     set cursorline
-    " vertical res 50
     inoremap <buffer><silent> <CR> <Esc>o- 
     inoremap <buffer><silent> <Esc> <Esc>:FPCheckToDoStatus<CR>
     nnoremap <buffer><silent> o o<Esc>:FPCheckToDoStatus<CR>a
@@ -85,8 +109,13 @@ function! s:FPSetBufMapToDo()
     nnoremap <buffer><silent> <Space> :FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> <Tab> :FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> <C-C> :FPChangeToDoStatus<CR>
-    nnoremap <buffer><silent> q :bw %<CR>
+    nnoremap <buffer><silent> q :FPToDoSort<CR>:bw %<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultToDo.' call <SID>FPSetBufMapToDo()'
 exec 'au BufRead '.g:FastProject_DefaultToDo.' set filetype=fptodo'
-exec 'au VimLeave * FPToDoRemove'
+
+function! s:FPVimLeaveToDo()
+    FPToDoRemove
+    FPToDoSort
+endfunction
+exec 'au VimLeave * call <SID>FPVimLeaveToDo()'

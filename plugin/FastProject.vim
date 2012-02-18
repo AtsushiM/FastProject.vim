@@ -1,6 +1,6 @@
 "AUTHOR:   Atsushi Mizoue <asionfb@gmail.com>
 "WEBSITE:  https://github.com/AtsushiM/FastProject.vim
-"VERSION:  0.1
+"VERSION:  0.9
 "LICENSE:  MIT
 
 let g:FastProject_PluginDir = expand('<sfile>:p:h:h').'/'
@@ -30,7 +30,6 @@ if !filereadable(s:FastProject_DefaultConfig)
 endif
 exec 'source '.s:FastProject_DefaultConfig
 
-
 if !exists("g:FastProject_UseUnite")
     let g:FastProject_UseUnite = 0
 endif
@@ -44,7 +43,6 @@ if !exists("g:FastProject_ConfigWindowSize")
     let g:FastProject_ConfigWindowSize = 'topleft vs'
 endif
 if !exists("g:FastProject_SubLoad")
-    " let g:FastProject_SubLoad = ['make', 'sass', 'save_status', 'bookmark', 'download', 'memo', 'todo'] 
     let g:FastProject_SubLoad = ['make', 'sass', 'bookmark', 'download', 'memo', 'todo'] 
 endif
 
@@ -57,6 +55,7 @@ endif
 if !filereadable(s:FastProject_DefaulTemplate)
     call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultConfigFileTemplate.' '.s:FastProject_DefaulTemplate)
 endif
+
 if !filereadable(s:FastProject_DefaultList)
     call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultList.' '.s:FastProject_DefaultList)
 endif

@@ -1,6 +1,6 @@
 "AUTHOR:   Atsushi Mizoue <asionfb@gmail.com>
 "WEBSITE:  https://github.com/AtsushiM/FastProject.vim
-"VERSION:  0.1
+"VERSION:  0.9
 "LICENSE:  MIT
 
 if !exists("g:FastProject_AutoMake")
