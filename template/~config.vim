@@ -3,14 +3,15 @@
 " let g:FastProject_UseUnite = 1
 
 " プラグインの各機能で使用するディレクトリ名です
+" リストの前の者ほど優先されます
 " 画像
-let g:FastProject_DefaultIMGDir = 'img'
+let g:FastProject_DefaultIMGDir = ['img', 'imgs', 'image', 'images']
 " JavaScript
-let g:FastProject_DefaultJSDir = 'js'
-" sass,scss
-let g:FastProject_DefaultSASSDir = 'scss'
+let g:FastProject_DefaultJSDir = ['js', 'javascript', 'javascripts']
+" sass
+let g:FastProject_DefaultSASSDir = ['sass', 'scss']
 " css
-let g:FastProject_DefaultCSSDir = 'css'
+let g:FastProject_DefaultCSSDir = ['css', 'stylesheet']
 
 " sass,scssを保存した場合、自動でコンパイル(compass対応)
 " プロジェクトルートにconfig.rbファイルが存在していればcompass compile,
