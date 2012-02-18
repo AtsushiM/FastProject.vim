@@ -77,11 +77,15 @@ function! s:FPGetGit(repo)
 endfunction
 
 function! s:FPWget()
-    let url = getline('.')
-    echo url
-    let cmd = 'wget '.url
-    call system(cmd)
-    echo cmd
+    let uri = escape(matchstr(getline("."), '[a-z]*:\/\/[^ >,;:]*'), '#')
+    if uri != ""
+        let cmd = 'wget '.uri
+        call system(cmd)
+        echo cmd
+    else
+        echo "No URI found in line."
+    endif
+
 endfunction
 
 function! s:FPInit()
