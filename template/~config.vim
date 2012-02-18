@@ -26,7 +26,7 @@ let g:FastProject_DefaultCSSDir = ['css', 'stylesheet']
 
 " サブ機能設定
 " 使用しない機能は下記リストから削除することによって読み込まれません
-" let g:FastProject_SubLoad = ['bookmark', 'download', 'memo', 'todo'] 
+" let g:FastProject_SubLoad = ['make', 'sass', 'bookmark', 'download', 'memo', 'todo'] 
 
 " 機能ウィンドウサイズ&位置
 " 'topleft ~sp' で 画面上、

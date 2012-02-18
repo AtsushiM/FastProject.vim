@@ -5,7 +5,6 @@
 
 if !exists("g:FastProject_AutoMake")
     let g:FastProject_AutoMake = []
-    " let g:FastProject_AutoMake = [ 'js' ]
 endif
 
 function! s:FPMakeFileCheck()
@@ -24,14 +23,15 @@ function! s:FPMake()
         call system(cmd)
         pwd
     endif
-
-    " exec 'silent cd '.dir
+    exec 'silent cd '.dir
 endfunction
 
 command! FPMake call s:FPMake()
 
+let g:FPLT = 11111
 " auto make
 if g:FastProject_AutoMake != []
+    let g:FPLT = 2222
     for e in g:FastProject_AutoMake
         exec 'au BufWritePost *.'.e.' call <SID>FPMake()'
     endfor

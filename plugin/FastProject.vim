@@ -7,9 +7,6 @@ let g:FastProject_PluginDir = expand('<sfile>:p:h:h').'/'
 let g:FastProject_TemplateDir = g:FastProject_PluginDir.'template/'
 let g:FastProject_SubDir = g:FastProject_PluginDir.'sub/'
 
-if !exists("g:FastProject_UseUnite")
-    let g:FastProject_UseUnite = 0
-endif
 if !exists("g:FastProject_DefaultConfigDir")
     let g:FastProject_DefaultConfigDir = $HOME.'/.vimfastproject/'
 endif
@@ -25,6 +22,18 @@ endif
 if !exists("g:FastProject_DefaultConfig")
     let g:FastProject_DefaultConfig = '~config.vim'
 endif
+
+" config
+let s:FastProject_DefaultConfig = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfig
+if !filereadable(s:FastProject_DefaultConfig)
+    call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultConfig.' '.s:FastProject_DefaultConfig)
+endif
+exec 'source '.s:FastProject_DefaultConfig
+
+
+if !exists("g:FastProject_UseUnite")
+    let g:FastProject_UseUnite = 0
+endif
 if !exists("g:FastProject_TemplateWindowSize")
     let g:FastProject_TemplateWindowSize = 'topleft 15sp'
 endif
@@ -35,9 +44,9 @@ if !exists("g:FastProject_ConfigWindowSize")
     let g:FastProject_ConfigWindowSize = 'topleft vs'
 endif
 if !exists("g:FastProject_SubLoad")
-    let g:FastProject_SubLoad = ['make', 'sass', 'save_status', 'bookmark', 'download', 'memo', 'todo'] 
+    " let g:FastProject_SubLoad = ['make', 'sass', 'save_status', 'bookmark', 'download', 'memo', 'todo'] 
+    let g:FastProject_SubLoad = ['make', 'sass', 'bookmark', 'download', 'memo', 'todo'] 
 endif
-
 
 " config
 let s:FastProject_DefaulTemplate = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
@@ -58,14 +67,6 @@ if g:FastProject_SubLoad != []
         exec 'source '.g:FastProject_SubDir.e.'.vim'
     endfor
 endif
-
-" config
-let s:FastProject_DefaultConfig = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfig
-if !filereadable(s:FastProject_DefaultConfig)
-    call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultConfig.' '.s:FastProject_DefaultConfig)
-endif
-exec 'source '.s:FastProject_DefaultConfig
-
 
 function! s:FPGetGit(repo)
     let i = matchlist(a:repo, '\v(.*)/(.*)')[2]
