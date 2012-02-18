@@ -3,13 +3,13 @@
 " let g:FastProject_UseUnite = 1
 
 " プラグインの各機能で使用するディレクトリ名です
-" 画像フォルダ名
+" 画像
 let g:FastProject_DefaultIMGDir = 'img'
-" JavaScriptフォルダ名
+" JavaScript
 let g:FastProject_DefaultJSDir = 'js'
-" sassのフォルダ名
+" sass,scss
 let g:FastProject_DefaultSASSDir = 'scss'
-" cssのフォルダ名
+" css
 let g:FastProject_DefaultCSSDir = 'css'
 
 " sass,scssを保存した場合、自動でコンパイル(compass対応)
@@ -21,7 +21,7 @@ let g:FastProject_DefaultCSSDir = 'css'
 " 登録された拡張子を保存した場合でかつ、
 " プロジェクトルートにMakefileが存在する場合、
 " 自動でmakeコマンドを実行
-" let g:FastProject_AutoMake = []
+" let g:FastProject_AutoMake = ['js','php']
 
 " サブ機能設定
 " 使用しない機能は下記リストから削除することによって読み込まれません

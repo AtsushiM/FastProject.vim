@@ -5,7 +5,6 @@
 
 if !exists("g:FastProject_PreCD")
     let g:FastProject_PreCD = ''
-    " let g:FastProject_PreCD = $HOME.'/works'
 endif
 if !exists("g:FastProject_CDLoop")
     let g:FastProject_CDLoop = 5
@@ -14,10 +13,10 @@ if !exists("g:FastProject_AutoCDRoot")
     let g:FastProject_AutoCDRoot = 0
 endif
 if !exists("g:FastProject_DefaultIMGDir")
-    let g:FastProject_DefaultIMGDir = 'img'
+    let g:FastProject_DefaultIMGDir = ['img', 'imgs', 'image', 'images']
 endif
 if !exists("g:FastProject_DefaultJSDir")
-    let g:FastProject_DefaultJSDir = 'js'
+    let g:FastProject_DefaultJSDir = ['js', 'javascript', 'javascripts']
 endif
 
 function! s:FPRootPath()
@@ -42,44 +41,52 @@ endfunction
 
 function! FPCD(...)
     let dir = <SID>FPRootPath()
-    let root = dir
-    if dir != '' && a:0 != 0
-        let dir = dir.a:000[0]
-    endif
 
-    if root != ''
-        exec 'silent cd '.dir
-    endif
-
-    pwd
-
-    if root == ''
+    if dir == ''
         return 0
     else
+        if a:0 != 0
+            for e in a:000[0]
+                if isdirectory(dir.e)
+                    let dir = dir.e
+                    break
+                endif
+            endfor
+        endif
+
+        exec 'cd '.dir
+        pwd
         return 1
     endif
-    echo a:000[0]
 endfunction
 
 function! FPEdit(path)
     let root = <SID>FPRootPath()
 
     if root != ''
-        let target = root.a:path
-        if g:FastProject_UseUnite == 0
-            exec 'e '.target
+        if type(a:path) != 3
+            let path = [a:path]
         else
-            let path = getcwd()
-            exec 'Unite -input='.path.'/'.a:path.'/ file'
+            let path = a:path
         endif
 
-        if isdirectory(target)
-            exec 'silent cd '.target
-        endif
+        for e in path
+            let target = root.e
+
+            if filereadable(target) || isdirectory(target)
+                if g:FastProject_UseUnite == 0
+                    exec 'e '.target
+                else
+                    exec 'Unite -input='.target.'/ file'
+                endif
+
+                break
+            endif
+        endfor
     endif
 endfunction
 
-command! FPCD call FPCD()
+command! -nargs=* FPCD call FPCD(<f-args>)
 
 command! FPEditRoot call FPEdit('.')
 command! FPEditSASS call FPEdit(g:FastProject_DefaultSASSDir)

@@ -7,10 +7,10 @@ if !exists("g:FastProject_AutoSassCompile")
     let g:FastProject_AutoSassCompile = 1
 endif
 if !exists("g:FastProject_DefaultSASSDir")
-    let g:FastProject_DefaultSASSDir = 'scss'
+    let g:FastProject_DefaultSASSDir = ['sass', 'scss']
 endif
 if !exists("g:FastProject_DefaultCSSDir")
-    let g:FastProject_DefaultCSSDir = 'css'
+    let g:FastProject_DefaultCSSDir = ['css', 'stylesheet']
 endif
 
 function! s:FPCompassCheck()
