@@ -7,16 +7,16 @@ if !exists("g:FastProject_DefaultDownload")
     let g:FastProject_DefaultDownload = '~FastProject-Download~'
 endif
 if !exists("g:FastProject_DownloadWindowSize")
-    let g:FastProject_DownloadWindowSize = 50
+    let g:FastProject_DownloadWindowSize = 'topleft 50vs'
 endif
 
 let s:FastProject_DefaultDownload = g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
 if !filereadable(s:FastProject_DefaultDownload)
-    call system('echo -e "# Project DownloadList" > '.s:FastProject_DefaultDownload)
+    call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultDownload.' '.s:FastProject_DefaultDownload)
 endif
 
 function! s:FPDownload()
-    exec g:FastProject_DownloadWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
+    exec g:FastProject_DownloadWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
 endfunction
 
 command! FPDownload call s:FPDownload()

@@ -7,18 +7,16 @@ if !exists("g:FastProject_DefaultBookmark")
     let g:FastProject_DefaultBookmark = '~FastProject-Bookmark~'
 endif
 if !exists("g:FastProject_BookmarkWindowSize")
-    let g:FastProject_BookmarkWindowSize = 50
+    let g:FastProject_BookmarkWindowSize = 'topleft 50vs'
 endif
 
 let s:FastProject_DefaultBookmark = g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark
-let g:testFpdb = g:FastProject_DefaultBookmark
 if !filereadable(s:FastProject_DefaultBookmark)
     call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultBookmark.' '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark)
-    " call system('echo -e "# Bookmark" > '.s:FastProject_DefaultBookmark)
 endif
 
 function! s:FPBookmark()
-    exec g:FastProject_BookmarkWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark
+    exec g:FastProject_BookmarkWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark
 endfunction
 command! FPBookmark call s:FPBookmark()
 

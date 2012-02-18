@@ -96,7 +96,3 @@ command! FPCDJS call FPCD(g:FastProject_DefaultJSDir)
 if g:FastProject_AutoCDRoot == 1
     au BufReadPost * exec FPCD() 
 endif
-
-if g:FastProject_PreCD != ''
-    exec 'cd '.g:FastProject_PreCD
-endif

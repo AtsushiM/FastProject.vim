@@ -3,24 +3,21 @@
 "VERSION:  0.1
 "LICENSE:  MIT
 
-if !exists("g:FastProject_PreOpenToDo")
-    let g:FastProject_PreOpenToDo = 0
-endif
 if !exists("g:FastProject_DefaultToDo")
     let g:FastProject_DefaultToDo = '~FastProject-ToDo~'
 endif
 if !exists("g:FastProject_ToDoWindowSize")
-    let g:FastProject_ToDoWindowSize = 50
+    let g:FastProject_ToDoWindowSize = 'topleft 50vs'
 endif
 
 " config
 let s:FastProject_DefaultToDo = g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
 if !filereadable(s:FastProject_DefaultToDo)
-    call system('echo -e "# ToDo" > '.s:FastProject_DefaultToDo)
+    call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultToDo.' '.s:FastProject_DefaultToDo)
 endif
 
 function! s:FPToDo()
-    exec "topleft ".g:FastProject_ToDoWindowSize."vs ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
+    exec g:FastProject_ToDoWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
 endfunction
 function! s:FPCheckToDoStatus()
     let todo = getline('.')
@@ -92,7 +89,3 @@ function! s:FPSetBufMapToDo()
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultToDo.' call <SID>FPSetBufMapToDo()'
 exec 'au BufRead '.g:FastProject_DefaultToDo.' set filetype=fptodo'
-
-if g:FastProject_PreOpenToDo == 1
-    FPToDo
-endif

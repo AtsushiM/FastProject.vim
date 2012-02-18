@@ -7,14 +7,8 @@ let g:FastProject_PluginDir = expand('<sfile>:p:h:h').'/'
 let g:FastProject_TemplateDir = g:FastProject_PluginDir.'template/'
 let g:FastProject_SubDir = g:FastProject_PluginDir.'sub/'
 
-if !exists("g:FastProject_AutoCursorLastChange")
-    let g:FastProject_AutoCursorLastChange = 1
-endif
-if !exists("g:FastProject_PreOpenList")
-    let g:FastProject_PreOpenList = 0
-endif
 if !exists("g:FastProject_UseUnite")
-    let g:FastProject_UseUnite = 1
+    let g:FastProject_UseUnite = 0
 endif
 if !exists("g:FastProject_DefaultConfigDir")
     let g:FastProject_DefaultConfigDir = $HOME.'/.vimfastproject/'
@@ -32,13 +26,13 @@ if !exists("g:FastProject_DefaultConfig")
     let g:FastProject_DefaultConfig = '~config.vim'
 endif
 if !exists("g:FastProject_TemplateWindowSize")
-    let g:FastProject_TemplateWindowSize = 15
+    let g:FastProject_TemplateWindowSize = 'topleft 15sp'
 endif
 if !exists("g:FastProject_ListWindowSize")
-    let g:FastProject_ListWindowSize = 15
+    let g:FastProject_ListWindowSize = 'topleft 15sp'
 endif
 if !exists("g:FastProject_ConfigWindowSize")
-    let g:FastProject_ConfigWindowSize = 15
+    let g:FastProject_ConfigWindowSize = 'topleft vs'
 endif
 if !exists("g:FastProject_SubLoad")
     let g:FastProject_SubLoad = ['bookmark', 'download', 'memo', 'todo'] 
@@ -107,18 +101,18 @@ function! s:FPInit()
 endfunction
 
 function! s:FPTemplateEdit()
-    exec "topleft ".g:FastProject_TemplateWindowSize."sp ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
+    exec g:FastProject_TemplateWindowSize.' '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
 endfunction
 function! s:FPList()
     let file = g:FastProject_DefaultConfigDir.g:FastProject_DefaultList
-    exec "topleft ".g:FastProject_ListWindowSize."sp ".file
+    exec g:FastProject_ListWindowSize.' '.file
     silent sort u
     w
 endfunction
 
 function! s:FPConfig()
     let file = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfig
-    exec "botright ".g:FastProject_ConfigWindowSize."sp ".file
+    exec g:FastProject_ConfigWindowSize.' '.file
 endfunction
 
 function! s:FastProject(...)
@@ -214,18 +208,9 @@ endfunction
 exec 'au BufRead '.g:FastProject_DefaultList.' call <SID>FPSetBufMapProjectList()'
 
 function! s:FPSetBufMapConfig()
-    nnoremap <buffer><silent> q :source %<CR>:bw %<CR>
+    nnoremap <buffer><silent> q :source %<CR>:exec 'source '.g:FastProject_PluginDir.'plugin/FastProject.vim'<CR>:bw %<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultConfig.' call <SID>FPSetBufMapConfig()'
-
-" cursor move last change
-if g:FastProject_AutoCursorLastChange == 1
-    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
-endif
-
-if g:FastProject_PreOpenList == 1
-    FPList
-endif
 
 if g:FastProject_UseUnite == 1
     let s:unite_source = {
