@@ -1,5 +1,7 @@
 "" FastProject Config File ver 0.9
 "" デフォルトで開くファイラー他、機能をUniteで使用できるようにする
+"" Uniteのsourceにfastprojectが追加され、
+"" :Unite fastproject で登録したプロジェクトの一覧から検索が可能です
 " let g:FastProject_UseUnite = 1
 
 "" プラグインの各機能で使用するディレクトリ名です
