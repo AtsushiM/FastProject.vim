@@ -1,2 +1,4 @@
 # Project DownloadList
-
+# Press Enter: Download the current directory
+jQuery http://code.jquery.com/jquery-latest.min.js
+Backbone http://documentcloud.github.com/backbone/backbone-min.js
