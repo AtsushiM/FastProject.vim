@@ -13,8 +13,12 @@ function! s:FPGetGit(repo)
     echo 'GetGit Done!'
 endfunction
 
+function! s:FPURICheck(uri)
+  return escape(matchstr(a:uri, '[a-z]*:\/\/[^ >,;:]*'), '#')
+endfunction
+
 function! s:FPBrowseURI()
-  let uri = escape(matchstr(getline("."), '[a-z]*:\/\/[^ >,;:]*'), '#')
+  let uri = <SID>FPURICheck(getline("."))
   if uri != ""
     call system("! open " . uri)
   else

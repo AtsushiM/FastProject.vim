@@ -3,6 +3,8 @@
 "VERSION:  0.9
 "LICENSE:  MIT
 
+let g:FastProject_DownloadBeforePath = ''
+
 if !exists("g:FastProject_DefaultDownload")
     let g:FastProject_DefaultDownload = '~FastProject-Download~'
 endif
@@ -16,8 +18,11 @@ if !filereadable(s:FastProject_DefaultDownload)
 endif
 
 function! s:FPWget()
-    let uri = escape(matchstr(getline("."), '[a-z]*:\/\/[^ >,;:]*'), '#')
+    let uri = <SID>FPURICheck(getline("."))
     if uri != ""
+        if g:FastProject_DownloadBeforePath != ''
+            exec 'cd '.g:FastProject_DownloadBeforePath
+        endif
         let cmd = 'wget '.uri
         call system(cmd)
         echo cmd
@@ -27,6 +32,7 @@ function! s:FPWget()
 endfunction
 
 function! s:FPDownload()
+    g:FastProject_DownloadBeforePath = getcwd()
     exec g:FastProject_DownloadWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
 endfunction
 
