@@ -15,10 +15,22 @@ if !filereadable(s:FastProject_DefaultDownload)
     call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultDownload.' '.s:FastProject_DefaultDownload)
 endif
 
+function! s:FPWget()
+    let uri = escape(matchstr(getline("."), '[a-z]*:\/\/[^ >,;:]*'), '#')
+    if uri != ""
+        let cmd = 'wget '.uri
+        call system(cmd)
+        echo cmd
+    else
+        echo "No URI found in line."
+    endif
+endfunction
+
 function! s:FPDownload()
     exec g:FastProject_DownloadWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
 endfunction
 
+command! FPWget call s:FPWget()
 command! FPDownload call s:FPDownload()
 
 function! s:FPSetBufMapDownload()

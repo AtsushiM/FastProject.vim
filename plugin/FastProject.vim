@@ -85,7 +85,6 @@ function! s:FPWget()
     else
         echo "No URI found in line."
     endif
-
 endfunction
 
 function! s:FPInit()
