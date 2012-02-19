@@ -6,15 +6,16 @@
 let g:FastProject_PluginDir = expand('<sfile>:p:h:h').'/'
 let g:FastProject_TemplateDir = g:FastProject_PluginDir.'template/'
 let g:FastProject_SubDir = g:FastProject_PluginDir.'sub/'
+let g:FastProject_TemplateBeforePath = ''
 
 if !exists("g:FastProject_DefaultConfigDir")
     let g:FastProject_DefaultConfigDir = $HOME.'/.vimfastproject/'
 endif
 if !exists("g:FastProject_DefaultConfigFile")
-    let g:FastProject_DefaultConfigFile = '.vfp'
+    let g:FastProject_DefaultConfigFile = '.vimfastproject'
 endif
 if !exists("g:FastProject_DefaultConfigFileTemplate")
-    let g:FastProject_DefaultConfigFileTemplate = '.vfp.template'
+    let g:FastProject_DefaultConfigFileTemplate = '~FastProject-Template~'
 endif
 if !exists("g:FastProject_DefaultList")
     let g:FastProject_DefaultList = '~FastProject-List~'
@@ -67,7 +68,7 @@ if g:FastProject_SubLoad != []
     endfor
 endif
 
-function! s:FPTemplateEdit()
+function! s:FPTemplate()
     exec g:FastProject_TemplateWindowSize.' '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
 endfunction
 function! s:FPConfig()
@@ -79,8 +80,7 @@ function! s:FPList()
     w
 endfunction
 
-function! s:FPAdd()
-    cd %:p:h
+function! s:FPAddCore()
     if !filereadable(g:FastProject_DefaultConfigFile)
         let cmd = 'cp '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate.' '.g:FastProject_DefaultConfigFile
         call system(cmd)
@@ -92,20 +92,34 @@ function! s:FPAdd()
     endif
 endfunction
 
-function! s:FPInit()
-    echo "FastProject:"
-
+function! s:FPAdd()
     cd %:p:h
-    let repo = getline('.')
-    call <SID>FPGetGit(repo)
+    call <SID>FPAddCore()
+endfunction
 
-    if g:FastProject_UseUnite == 0
-        e .
+function! s:FPInit()
+    if g:FastProject_TemplateBeforePath != ''
+        echo "FastProject:"
+
+        exec 'cd '.g:FastProject_TemplateBeforePath
+
+        let repo = getline('.')
+        call FPGetGit(repo)
+
+        call <SID>FPAddCore()
+
+        bw %
+
+        if g:FastProject_UseUnite == 0
+            exec 'e '.g:FastProject_TemplateBeforePath
+        else
+            exec 'Unite -input='.g:FastProject_TemplateBeforePath.'/ file'
+        endif
+
+        echo "ALL Done!"
     else
-        exec 'Unite -input='.expand('%:p:h').'/ file'
+        echo 'No before path.'
     endif
-
-    echo "ALL Done!"
 endfunction
 
 function! s:FPOpen()
@@ -118,7 +132,7 @@ function! s:FPOpen()
         exec 'Unite -input='.path.'/ file'
     endif
     exec 'echo "Project Open:'.path.'"'
-    call <SID>FPAdd()
+    FPAdd
 endfunction
 
 function! s:FastProject(...)
@@ -126,39 +140,42 @@ function! s:FastProject(...)
         exec 'cd '.a:000[0]
     endif
 
-    call <SID>FPAdd()
-    exec 'e '.g:FastProject_DefaultConfigFile
+    FPAdd
+    FPTemplate
 endfunction
 
 function! s:FPProjectFileDelete()
     let path = getline('.')
     let path = path.'/'.g:FastProject_DefaultConfigFile
     echo path
-    call <SID>FPDelete(path)
+    call FPDelete(path)
 endfunction
 
 command! -nargs=* FP call s:FastProject(<f-args>)
 command! FPAdd call s:FPAdd()
 command! FPInit call s:FPInit()
-command! FPTemplateEdit call s:FPTemplateEdit()
+command! FPTemplate call s:FPTemplate()
 command! FPList call s:FPList()
 command! FPConfig call s:FPConfig()
 command! FPOpen call s:FPOpen()
 command! FPProjectFileDelete call s:FPProjectFileDelete()
 
-function! s:FPSetBufMapProjectFile()
+" function! s:FPSetBufMapProjectFile()
+"     set cursorline
+"     nnoremap <buffer><silent> e :FPInit<CR>
+"     nnoremap <buffer><silent> <CR> :FPInit<CR>
+"     nnoremap <buffer><silent> q :bw %<CR>
+" endfunction
+" exec 'au BufRead '.g:FastProject_DefaultConfigFile.' call <SID>FPSetBufMapProjectFile()'
+
+function! s:FPSetBufMapProjectTemplateFile()
     set cursorline
     nnoremap <buffer><silent> e :FPInit<CR>
     nnoremap <buffer><silent> <CR> :FPInit<CR>
     nnoremap <buffer><silent> q :bw %<CR>
 endfunction
-exec 'au BufRead '.g:FastProject_DefaultConfigFile.' call <SID>FPSetBufMapProjectFile()'
-
-function! s:FPSetBufMapProjectTemplateFile()
-    set cursorline
-    nnoremap <buffer><silent> q :bw %<CR>
-endfunction
 exec 'au BufRead '.g:FastProject_DefaultConfigFileTemplate.' call <SID>FPSetBufMapProjectTemplateFile()'
+exec 'au BufReadPre '.g:FastProject_DefaultConfigFileTemplate.' let g:FastProject_TemplateBeforePath = getcwd()'
 
 function! s:FPSetBufMapProjectList()
     set cursorline

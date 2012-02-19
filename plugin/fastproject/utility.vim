@@ -4,7 +4,7 @@
 "LICENSE:  MIT
 
 let g:utilitytest = 1
-function! s:FPGetGit(repo)
+function! FPGetGit(repo)
     let i = matchlist(a:repo, '\v(.*)/(.*)')[2]
     echo 'Start GetGit:'
     call system('git clone git://github.com/'.a:repo.'.git')
@@ -13,12 +13,12 @@ function! s:FPGetGit(repo)
     echo 'GetGit Done!'
 endfunction
 
-function! s:FPURICheck(uri)
+function! FPURICheck(uri)
   return escape(matchstr(a:uri, '[a-z]*:\/\/[^ >,;:]*'), '#')
 endfunction
 
 function! s:FPBrowseURI()
-  let uri = <SID>FPURICheck(getline("."))
+  let uri = FPURICheck(getline("."))
   if uri != ""
     call system("! open " . uri)
   else
@@ -26,7 +26,7 @@ function! s:FPBrowseURI()
   endif
 endfunction
 
-function! s:FPDelete(path)
+function! FPDelete(path)
     if filereadable(a:path)
         let cmd = 'rm -rf '.a:path
         call system(cmd)

@@ -18,7 +18,7 @@ if !filereadable(s:FastProject_DefaultDownload)
 endif
 
 function! s:FPWget()
-    let uri = <SID>FPURICheck(getline("."))
+    let uri = FPURICheck(getline("."))
     if uri != ""
         if g:FastProject_DownloadBeforePath != ''
             exec 'cd '.g:FastProject_DownloadBeforePath
@@ -32,7 +32,6 @@ function! s:FPWget()
 endfunction
 
 function! s:FPDownload()
-    g:FastProject_DownloadBeforePath = getcwd()
     exec g:FastProject_DownloadWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
 endfunction
 
@@ -46,3 +45,4 @@ function! s:FPSetBufMapDownload()
     nnoremap <buffer><silent> q :bw %<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultDownload.' call <SID>FPSetBufMapDownload()'
+exec 'au BufReadPre '.g:FastProject_DefaultDownload.' let g:FastProject_DownloadBeforePath = getcwd()'
