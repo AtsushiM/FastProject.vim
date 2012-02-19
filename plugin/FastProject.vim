@@ -76,17 +76,6 @@ function! s:FPGetGit(repo)
     echo 'GetGit Done!'
 endfunction
 
-function! s:FPWget()
-    let uri = escape(matchstr(getline("."), '[a-z]*:\/\/[^ >,;:]*'), '#')
-    if uri != ""
-        let cmd = 'wget '.uri
-        call system(cmd)
-        echo cmd
-    else
-        echo "No URI found in line."
-    endif
-endfunction
-
 function! s:FPInit()
     echo "FastProject:"
 
@@ -184,7 +173,6 @@ command! FPList call s:FPList()
 command! FPConfig call s:FPConfig()
 command! FPOpen call s:FPOpen()
 command! FPBrowse call s:FPBrowseURI()
-command! FPWget call s:FPWget()
 command! FPProjectFileDelete call s:FPProjectFileDelete()
 
 function! s:FPSetBufMapProjectFile()
