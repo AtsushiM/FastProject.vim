@@ -91,11 +91,11 @@ command! FPEditCSS call FPEdit(g:FastProject_DefaultCSSDir)
 command! FPEditIMG call FPEdit(g:FastProject_DefaultIMGDir)
 command! FPEditJS call FPEdit(g:FastProject_DefaultJSDir)
 
-command! FPCDRoot call FPCD('.')
-command! FPCDSASS call FPCD(g:FastProject_DefaultSASSDir)
-command! FPCDCSS call FPCD(g:FastProject_DefaultCSSDir)
-command! FPCDIMG call FPCD(g:FastProject_DefaultIMGDir)
-command! FPCDJS call FPCD(g:FastProject_DefaultJSDir)
+command! FPCDRoot call FPCD([ '.' ])
+command! FPCDSASS call FPCD([ g:FastProject_DefaultSASSDir ])
+command! FPCDCSS call FPCD([ g:FastProject_DefaultCSSDir ])
+command! FPCDIMG call FPCD([g:FastProject_DefaultIMGDir])
+command! FPCDJS call FPCD([ g:FastProject_DefaultJSDir ])
 
 if g:FastProject_AutoCDRoot == 1
     au BufReadPost * exec FPCD() 
