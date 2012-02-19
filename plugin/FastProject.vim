@@ -67,13 +67,29 @@ if g:FastProject_SubLoad != []
     endfor
 endif
 
-function! s:FPGetGit(repo)
-    let i = matchlist(a:repo, '\v(.*)/(.*)')[2]
-    echo 'Start GetGit:'
-    call system('git clone git://github.com/'.a:repo.'.git')
-    call system('mv -f '.i.'/* ./')
-    call system('rm -rf '.i)
-    echo 'GetGit Done!'
+function! s:FPTemplateEdit()
+    exec g:FastProject_TemplateWindowSize.' '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
+endfunction
+function! s:FPConfig()
+    exec g:FastProject_ConfigWindowSize.' '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfig
+endfunction
+function! s:FPList()
+    exec g:FastProject_ListWindowSize.' '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultList
+    silent sort u
+    w
+endfunction
+
+function! s:FPAdd()
+    cd %:p:h
+    if !filereadable(g:FastProject_DefaultConfigFile)
+        let cmd = 'cp '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate.' '.g:FastProject_DefaultConfigFile
+        call system(cmd)
+        echo cmd
+        let path = matchlist(system('pwd'), '\v(.*)\n')[1]
+        call system('echo -e "'.path.'" >> '.s:FastProject_DefaultList)
+    else
+        echo 'Project file already exists.'
+    endif
 endfunction
 
 function! s:FPInit()
@@ -92,57 +108,6 @@ function! s:FPInit()
     echo "ALL Done!"
 endfunction
 
-function! s:FPTemplateEdit()
-    exec g:FastProject_TemplateWindowSize.' '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate
-endfunction
-function! s:FPList()
-    let file = g:FastProject_DefaultConfigDir.g:FastProject_DefaultList
-    exec g:FastProject_ListWindowSize.' '.file
-    silent sort u
-    w
-endfunction
-
-function! s:FPConfig()
-    let file = g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfig
-    exec g:FastProject_ConfigWindowSize.' '.file
-endfunction
-
-function! s:FastProject(...)
-    if a:0 != 0
-        exec 'cd '.a:000[0]
-    endif
-
-    call <SID>FPAdd()
-    exec 'e '.g:FastProject_DefaultConfigFile
-endfunction
-function! s:FPAdd()
-    cd %:p:h
-    if !filereadable(g:FastProject_DefaultConfigFile)
-        let cmd = 'cp '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate.' '.g:FastProject_DefaultConfigFile
-        call system(cmd)
-        echo cmd
-        let path = matchlist(system('pwd'), '\v(.*)\n')[1]
-        call system('echo -e "'.path.'" >> '.s:FastProject_DefaultList)
-    else
-        echo 'Project file already exists.'
-    endif
-endfunction
-function! s:FPProjectFileDelete()
-    let path = getline('.')
-    let path = path.'/'.g:FastProject_DefaultConfigFile
-    echo path
-    call <SID>FPDelete(path)
-endfunction
-function! s:FPDelete(path)
-    if filereadable(a:path)
-        let cmd = 'rm -rf '.a:path
-        call system(cmd)
-        echo cmd
-    else
-        echo 'No File: '.a:path
-    endif
-endfunction
-
 function! s:FPOpen()
     let path = getline('.')
     q
@@ -156,13 +121,20 @@ function! s:FPOpen()
     call <SID>FPAdd()
 endfunction
 
-function! s:FPBrowseURI()
-  let uri = escape(matchstr(getline("."), '[a-z]*:\/\/[^ >,;:]*'), '#')
-  if uri != ""
-    call system("! open " . uri)
-  else
-    echo "No URI found in line."
-  endif
+function! s:FastProject(...)
+    if a:0 != 0
+        exec 'cd '.a:000[0]
+    endif
+
+    call <SID>FPAdd()
+    exec 'e '.g:FastProject_DefaultConfigFile
+endfunction
+
+function! s:FPProjectFileDelete()
+    let path = getline('.')
+    let path = path.'/'.g:FastProject_DefaultConfigFile
+    echo path
+    call <SID>FPDelete(path)
 endfunction
 
 command! -nargs=* FP call s:FastProject(<f-args>)
@@ -172,7 +144,6 @@ command! FPTemplateEdit call s:FPTemplateEdit()
 command! FPList call s:FPList()
 command! FPConfig call s:FPConfig()
 command! FPOpen call s:FPOpen()
-command! FPBrowse call s:FPBrowseURI()
 command! FPProjectFileDelete call s:FPProjectFileDelete()
 
 function! s:FPSetBufMapProjectFile()
