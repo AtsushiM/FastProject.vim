@@ -82,7 +82,7 @@ endfunction
 
 function! s:FPAddCore()
     if !filereadable(g:FastProject_DefaultConfigFile)
-        let cmd = 'cp '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultConfigFileTemplate.' '.g:FastProject_DefaultConfigFile
+        let cmd = 'cp '.g:FastProject_TemplateDir.g:FastProject_DefaultConfigFile.' '.g:FastProject_DefaultConfigFile
         call system(cmd)
         echo cmd
         let path = matchlist(system('pwd'), '\v(.*)\n')[1]
