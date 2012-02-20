@@ -23,6 +23,6 @@ command! FPMemo call s:FPMemo()
 
 function! s:FPSetBufMapMemo()
     nnoremap <buffer><silent> b :FPBrowse<CR>
-    nnoremap <buffer><silent> q :bw %<CR>
+    nnoremap <buffer><silent> q :bw %<CR>:winc p<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultMemo.' call <SID>FPSetBufMapMemo()'

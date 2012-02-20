@@ -24,6 +24,6 @@ function! s:FPSetBufMapBookmark()
     set cursorline
     nnoremap <buffer><silent> e :FPBrowse<CR>
     nnoremap <buffer><silent> <CR> :FPBrowse<CR>
-    nnoremap <buffer><silent> q :bw %<CR>
+    nnoremap <buffer><silent> q :bw %<CR>:winc p<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultBookmark.' call <SID>FPSetBufMapBookmark()'

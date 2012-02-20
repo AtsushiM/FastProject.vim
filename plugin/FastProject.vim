@@ -172,7 +172,7 @@ function! s:FPSetBufMapProjectTemplateFile()
     set cursorline
     nnoremap <buffer><silent> e :FPInit<CR>
     nnoremap <buffer><silent> <CR> :FPInit<CR>
-    nnoremap <buffer><silent> q :bw %<CR>
+    nnoremap <buffer><silent> q :bw %<CR>:winc p<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultConfigFileTemplate.' call <SID>FPSetBufMapProjectTemplateFile()'
 exec 'au BufReadPre '.g:FastProject_DefaultConfigFileTemplate.' let g:FastProject_TemplateBeforePath = getcwd()'
@@ -181,7 +181,7 @@ function! s:FPSetBufMapProjectList()
     set cursorline
     nnoremap <buffer><silent> e :FPOpen<CR>
     nnoremap <buffer><silent> <CR> :FPOpen<CR>
-    nnoremap <buffer><silent> q :bw %<CR>
+    nnoremap <buffer><silent> q :bw %<CR>:winc p<CR>
     nnoremap <buffer><silent> dd :FPProjectFileDelete<CR>dd
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultList.' call <SID>FPSetBufMapProjectList()'

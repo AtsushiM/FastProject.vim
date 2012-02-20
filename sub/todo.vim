@@ -109,7 +109,7 @@ function! s:FPSetBufMapToDo()
     nnoremap <buffer><silent> <Space> :FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> <Tab> :FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> <C-C> :FPChangeToDoStatus<CR>
-    nnoremap <buffer><silent> q :FPToDoSort<CR>:bw %<CR>
+    nnoremap <buffer><silent> q :FPToDoSort<CR>:bw %<CR>:winc p<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultToDo.' call <SID>FPSetBufMapToDo()'
 exec 'au BufRead '.g:FastProject_DefaultToDo.' set filetype=fptodo'

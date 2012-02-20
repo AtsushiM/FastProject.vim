@@ -42,7 +42,7 @@ function! s:FPSetBufMapDownload()
     set cursorline
     nnoremap <buffer><silent> e :FPWget<CR>
     nnoremap <buffer><silent> <CR> :FPWget<CR>
-    nnoremap <buffer><silent> q :bw %<CR>
+    nnoremap <buffer><silent> q :bw %<CR>:winc p<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultDownload.' call <SID>FPSetBufMapDownload()'
 exec 'au BufReadPre '.g:FastProject_DefaultDownload.' let g:FastProject_DownloadBeforePath = getcwd()'
