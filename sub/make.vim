@@ -20,18 +20,15 @@ function! s:FPMake()
     let check = <SID>FPMakeFileCheck()
     if check == 1
         let cmd = 'make&'
-        call system(cmd)
-        pwd
+        silent call system(cmd)
     endif
     exec 'silent cd '.dir
 endfunction
 
 command! FPMake call s:FPMake()
 
-let g:FPLT = 11111
 " auto make
 if g:FastProject_AutoMake != []
-    let g:FPLT = 2222
     for e in g:FastProject_AutoMake
         exec 'au BufWritePost *.'.e.' call <SID>FPMake()'
     endfor

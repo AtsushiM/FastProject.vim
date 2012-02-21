@@ -132,7 +132,7 @@ function! s:FPOpen()
         exec 'Unite -input='.path.'/ file'
     endif
     exec 'echo "Project Open:'.path.'"'
-    FPAdd
+    call <SID>FPAddCore()
 endfunction
 
 function! s:FastProject(...)
