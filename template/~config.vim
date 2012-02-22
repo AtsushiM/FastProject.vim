@@ -97,3 +97,19 @@
 
 "" プロジェクトのルートディレクトリを検索する際のループ回数
 " let g:FastProject_CDLoop = 5
+
+"" プロジェクトリストからプロジェクトを開く際の動作を上書き
+"" ※デフォルトではファイラーを開きます
+"" 設定例
+"" 左にサイズ80でjsフォルダのmain.js,
+"" 右上にindex.html,右下にscss/screen.cssを開く
+" function! g:_FPOpen(...)
+"     80vs
+"     e js/main.js
+"     winc l
+"     sp
+"     e index.html
+"     winc j
+"     e scss/screen.scss
+"     winc h
+" endfunction
