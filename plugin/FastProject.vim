@@ -126,13 +126,17 @@ function! s:FPOpen()
     let path = getline('.')
     q
     exec 'cd '.path
+    call g:_FPOpen(path)
+    exec 'echo "Project Open:'.path.'"'
+    silent call <SID>FPAddCore()
+endfunction
+
+function g:_FPOpen(path)
     if g:FastProject_UseUnite == 0
         e .
     else
-        exec 'Unite -input='.path.'/ file'
+        exec 'Unite -input='.a:path.'/ file'
     endif
-    exec 'echo "Project Open:'.path.'"'
-    call <SID>FPAddCore()
 endfunction
 
 function! s:FastProject(...)
