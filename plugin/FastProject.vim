@@ -198,6 +198,7 @@ function! s:FPLoadLocalConfig()
     if path != ''
         let path = path.g:FastProject_DefaultConfigFile
         if filereadable(path)
+            exec 'source '.s:FastProject_DefaultConfig
             exec 'source '.path
         endif
     endif
