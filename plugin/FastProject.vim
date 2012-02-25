@@ -3,7 +3,7 @@
 "VERSION:  0.9
 "LICENSE:  MIT
 
-let g:FastProject_PluginDir = expand('<sfile>:p:h:h').'/'
+let g:FastProject_PluginDir = FPPathCheck(expand('<sfile>:p:h:h').'/')
 let g:FastProject_TemplateDir = g:FastProject_PluginDir.'template/'
 let g:FastProject_SubDir = g:FastProject_PluginDir.'sub/'
 let g:FastProject_TemplateBeforePath = ''
@@ -141,10 +141,12 @@ endfunction
 
 function! s:FastProject(...)
     if a:0 != 0
+        if !isdirectory(a:000[0])
+            call mkdir(a:000[0])
+        endif
         exec 'cd '.a:000[0]
     endif
 
-    FPAdd
     FPTemplate
 endfunction
 
@@ -191,7 +193,7 @@ endfunction
 exec 'au BufRead '.g:FastProject_DefaultList.' call <SID>FPSetBufMapProjectList()'
 
 function! s:FPSetBufMapConfig()
-    nnoremap <buffer><silent> q :source %<CR>:exec 'source '.g:FastProject_PluginDir.'plugin/FastProject.vim'<CR>:bw %<CR>
+    nnoremap <buffer><silent> q :bw %<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultConfig.' call <SID>FPSetBufMapConfig()'
 

@@ -91,7 +91,7 @@
 " let g:FastProject_ConfigWindowSize = 'topleft vs'
 
 "" ファイルを開くたびに自動でプロジェクトのルートへcd
-"" プロジェクトルートはプロジェクトファイル(.vfp)の有無で判断
+"" プロジェクトルートはプロジェクトファイル(.vimfastproject)の有無で判断
 "" 現在ファイルからg:FastProjectCDLoop階層分まで親ディレクトリを再帰的に検索
 " let g:FastProject_AutoCDRoot = 0
 
@@ -113,3 +113,20 @@
 "     e scss/screen.scss
 "     winc h
 " endfunction
+
+"" FastProjectの関数を利用した例
+"" 開発用のディレクトリから本番用のディレクトリに
+"" js,css,imgフォルダ内のファイルを移動する
+"" 使用例
+"" :FPCP
+" function! s:FPCP()
+"     let dir = getcwd()
+"     FPCD
+"     cd ../../
+"     pwd
+"     let cmd = 'cp -f preview/htdocs/css/* www/htdocs/css/|cp -f preview/htdocs/js/* www/htdocs/js/|cp -f preview/htdocs/img/* www/htdocs/img/'
+"     echo cmd
+"     call system(cmd)
+"     exec 'cd '.dir
+" endfunction
+" command! FPCP call s:FPCP()

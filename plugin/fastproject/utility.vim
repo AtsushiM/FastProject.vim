@@ -3,7 +3,10 @@
 "VERSION:  0.9
 "LICENSE:  MIT
 
-let g:utilitytest = 1
+function! FPPathCheck(path)
+    return escape(a:path, ' ')
+endfunction
+
 function! FPGetGit(repo)
     let i = matchlist(a:repo, '\v(.*)/(.*)')[2]
     echo 'Start GetGit:'
