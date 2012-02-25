@@ -144,13 +144,15 @@ function! s:FPOpen()
     silent call <SID>FPAddCore()
 endfunction
 
-function g:_FPOpen(path)
-    if g:FastProject_UseUnite == 0
-        e .
-    else
-        exec 'Unite -input='.a:path.'/ file'
-    endif
-endfunction
+if !exists(g:_FPOpen)
+    function! g:_FPOpen(path)
+        if g:FastProject_UseUnite == 0
+            e .
+        else
+            exec 'Unite -input='.a:path.'/ file'
+        endif
+    endfunction
+endif
 
 function! s:FastProject(...)
     if a:0 != 0
@@ -209,7 +211,6 @@ function! s:FPLoadLocalConfig()
     if path != ''
         let path = path.g:FastProject_DefaultConfigFile
         if filereadable(path)
-            exec 'source '.s:FastProject_DefaultConfig
             exec 'source '.path
         endif
     endif
