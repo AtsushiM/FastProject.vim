@@ -82,6 +82,16 @@ function! s:FPList()
     silent sort u
     w
 endfunction
+function! s:FPLocalConfig()
+    let path = FPRootPath()
+
+    if path != ''
+        let path = path.g:FastProject_DefaultConfigFile
+        if filereadable(path)
+            exec g:FastProject_ConfigWindowSize.' '.path
+        endif
+    endif
+endfunction
 
 function! s:FPAddCore()
     if !filereadable(g:FastProject_DefaultConfigFile)
@@ -166,6 +176,7 @@ command! FPInit call s:FPInit()
 command! FPTemplate call s:FPTemplate()
 command! FPList call s:FPList()
 command! FPConfig call s:FPConfig()
+command! FPLocalConfig call s:FPLocalConfig()
 command! FPOpen call s:FPOpen()
 command! FPProjectFileDelete call s:FPProjectFileDelete()
 
