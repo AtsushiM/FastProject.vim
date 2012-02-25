@@ -34,6 +34,9 @@ exec 'source '.s:FastProject_DefaultConfig
 if !exists("g:FastProject_UseUnite")
     let g:FastProject_UseUnite = 0
 endif
+if !exists("g:FastProject_LocalConfig")
+    let g:FastProject_LocalConfig = 1
+endif
 if !exists("g:FastProject_TemplateWindowSize")
     let g:FastProject_TemplateWindowSize = 'topleft 15sp'
 endif
@@ -166,14 +169,6 @@ command! FPConfig call s:FPConfig()
 command! FPOpen call s:FPOpen()
 command! FPProjectFileDelete call s:FPProjectFileDelete()
 
-" function! s:FPSetBufMapProjectFile()
-"     set cursorline
-"     nnoremap <buffer><silent> e :FPInit<CR>
-"     nnoremap <buffer><silent> <CR> :FPInit<CR>
-"     nnoremap <buffer><silent> q :bw %<CR>
-" endfunction
-" exec 'au BufRead '.g:FastProject_DefaultConfigFile.' call <SID>FPSetBufMapProjectFile()'
-
 function! s:FPSetBufMapProjectTemplateFile()
     set cursorline
     nnoremap <buffer><silent> e :FPInit<CR>
@@ -196,6 +191,20 @@ function! s:FPSetBufMapConfig()
     nnoremap <buffer><silent> q :bw %<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultConfig.' call <SID>FPSetBufMapConfig()'
+
+function! s:FPLoadLocalConfig()
+    let path = FPRootPath()
+
+    if path != ''
+        let path = path.g:FastProject_DefaultConfigFile
+        if filereadable(path)
+            exec 'source '.path
+        endif
+    endif
+endfunction
+if g:FastProject_LocalConfig == 1
+    au BufRead * call <SID>FPLoadLocalConfig()
+endif
 
 if g:FastProject_UseUnite == 1
     let s:unite_source = {

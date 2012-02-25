@@ -1,8 +1,8 @@
-"Vim FastProject Config File
-"AUTHOR:   Atsushi Mizoue <asionfb@gmail.com>
-"WEBSITE:  https://github.com/AtsushiM/FastProject.vim
-"VERSION:  0.9
-"LICENSE:  MIT
+"" Vim FastProject Config File
+"" AUTHOR:   Atsushi Mizoue <asionfb@gmail.com>
+"" WEBSITE:  https://github.com/AtsushiM/FastProject.vim
+"" VERSION:  0.9
+"" LICENSE:  MIT
 
 "" auto cd: project root
 " let g:FastProject_AutoCDRoot = 1

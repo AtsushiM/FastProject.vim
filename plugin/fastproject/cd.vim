@@ -16,7 +16,7 @@ if !exists("g:FastProject_DefaultJSDir")
     let g:FastProject_DefaultJSDir = ['js', 'javascript', 'javascripts']
 endif
 
-function! s:FPRootPath()
+function! FPRootPath()
     let i = 0
     let dir = expand('%:p:h').'/'
     while i < g:FastProject_CDLoop
@@ -37,7 +37,7 @@ function! s:FPRootPath()
 endfunction
 
 function! FPCD(...)
-    let dir = <SID>FPRootPath()
+    let dir = FPRootPath()
 
     if dir == ''
         return 0
@@ -58,7 +58,7 @@ function! FPCD(...)
 endfunction
 
 function! FPEdit(path)
-    let root = <SID>FPRootPath()
+    let root = FPRootPath()
 
     if root != ''
         if type(a:path) != 3
