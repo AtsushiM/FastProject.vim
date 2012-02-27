@@ -139,12 +139,15 @@ function! s:FPOpen()
     let path = getline('.')
     q
     exec 'cd '.path
+    if g:FastProject_LocalConfig == 1
+        call <SID>FPLoadLocalConfig()
+    endif
     call g:_FPOpen(path)
     exec 'echo "Project Open:'.path.'"'
     silent call <SID>FPAddCore()
 endfunction
 
-if !exists(g:_FPOpen)
+if !exists('g:_FPOpen')
     function! g:_FPOpen(path)
         if g:FastProject_UseUnite == 0
             e .
@@ -215,9 +218,6 @@ function! s:FPLoadLocalConfig()
         endif
     endif
 endfunction
-if g:FastProject_LocalConfig == 1
-    au BufRead * call <SID>FPLoadLocalConfig()
-endif
 
 if g:FastProject_UseUnite == 1
     let s:unite_source = {
