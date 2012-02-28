@@ -3,7 +3,10 @@
 "VERSION:  0.9
 "LICENSE:  MIT
 
-let g:FastProject_DownloadBeforePath = ''
+let s:FastProject_DownloadNo = 0
+let s:FastProject_DownloadOpen = 0
+
+let s:FastProject_DownloadBeforePath = ''
 
 if !exists("g:FastProject_DefaultDownload")
     let g:FastProject_DefaultDownload = '~FastProject-Download~'
@@ -20,8 +23,8 @@ endif
 function! s:FPWget()
     let uri = FPURICheck(getline("."))
     if uri != ""
-        if g:FastProject_DownloadBeforePath != ''
-            exec 'cd '.g:FastProject_DownloadBeforePath
+        if s:FastProject_DownloadBeforePath != ''
+            exec 'cd '.s:FastProject_DownloadBeforePath
         endif
         let cmd = 'wget '.uri
         call system(cmd)
@@ -32,7 +35,14 @@ function! s:FPWget()
 endfunction
 
 function! s:FPDownload()
-    exec g:FastProject_DownloadWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
+    if s:FastProject_DownloadOpen == 0
+        exec g:FastProject_DownloadWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
+        let s:FastProject_DownloadOpen = 1
+        let s:FastProject_DownloadNo = bufnr('%')
+    else
+        let s:FastProject_DownloadOpen = 0
+        exec 'bw '.s:FastProject_DownloadNo
+    endif
 endfunction
 
 command! FPWget call s:FPWget()
@@ -45,4 +55,4 @@ function! s:FPSetBufMapDownload()
     nnoremap <buffer><silent> q :bw %<CR>:winc p<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultDownload.' call <SID>FPSetBufMapDownload()'
-exec 'au BufReadPre '.g:FastProject_DefaultDownload.' let g:FastProject_DownloadBeforePath = getcwd()'
+exec 'au BufReadPre '.g:FastProject_DefaultDownload.' let s:FastProject_DownloadBeforePath = getcwd()'

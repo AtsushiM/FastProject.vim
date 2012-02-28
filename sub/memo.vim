@@ -3,6 +3,9 @@
 "VERSION:  0.9
 "LICENSE:  MIT
 
+let s:FastProject_MemoNo = 0
+let s:FastProject_MemoOpen = 0
+
 if !exists("g:FastProject_DefaultMemo")
     let g:FastProject_DefaultMemo = '~FastProject-MEMO~'
 endif
@@ -16,7 +19,14 @@ if !filereadable(s:FastProject_DefaultMemo)
 endif
 
 function! s:FPMemo()
-    exec g:FastProject_MemoWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultMemo
+    if s:FastProject_MemoOpen == 0
+        exec g:FastProject_MemoWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultMemo
+        let s:FastProject_MemoOpen = 1
+        let s:FastProject_MemoNo = bufnr('%')
+    else
+        let s:FastProject_MemoOpen = 0
+        exec 'bw '.s:FastProject_MemoNo
+    endif
 endfunction
 
 command! FPMemo call s:FPMemo()

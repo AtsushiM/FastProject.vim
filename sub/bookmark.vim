@@ -3,6 +3,9 @@
 "VERSION:  0.9
 "LICENSE:  MIT
 
+let s:FastProject_BookmarkNo = 0
+let s:FastProject_BookmarkOpen = 0
+
 if !exists("g:FastProject_DefaultBookmark")
     let g:FastProject_DefaultBookmark = '~FastProject-Bookmark~'
 endif
@@ -16,7 +19,14 @@ if !filereadable(s:FastProject_DefaultBookmark)
 endif
 
 function! s:FPBookmark()
-    exec g:FastProject_BookmarkWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark
+    if s:FastProject_BookmarkOpen == 0
+        exec g:FastProject_BookmarkWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark
+        let s:FastProject_BookmarkOpen = 1
+        let s:FastProject_BookmarkNo = bufnr('%')
+    else
+        let s:FastProject_BookmarkOpen = 0
+        exec 'bw '.s:FastProject_BookmarkNo
+    endif
 endfunction
 command! FPBookmark call s:FPBookmark()
 

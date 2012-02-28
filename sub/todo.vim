@@ -3,6 +3,9 @@
 "VERSION:  0.9
 "LICENSE:  MIT
 
+let s:FastProject_ToDoNo = 0
+let s:FastProject_ToDoOpen = 0
+
 if !exists("g:FastProject_DefaultToDo")
     let g:FastProject_DefaultToDo = '~FastProject-ToDo~'
 endif
@@ -17,7 +20,14 @@ if !filereadable(s:FastProject_DefaultToDo)
 endif
 
 function! s:FPToDo()
-    exec g:FastProject_ToDoWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
+    if s:FastProject_ToDoOpen == 0
+        exec g:FastProject_ToDoWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
+        let s:FastProject_ToDoOpen = 1
+        let s:FastProject_ToDoNo = bufnr('%')
+    else
+        let s:FastProject_ToDoOpen = 0
+        exec 'bw '.s:FastProject_ToDoNo
+    endif
 endfunction
 function! s:FPCheckToDoStatus()
     let todo = getline('.')

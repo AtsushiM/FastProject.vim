@@ -148,7 +148,7 @@ function! s:FPOpen()
 endfunction
 
 if !exists('g:_FPOpen')
-    function! g:_FPOpen(path)
+    function g:_FPOpen(path)
         if g:FastProject_UseUnite == 0
             e .
         else
