@@ -3,7 +3,7 @@
 "VERSION:  0.9
 "LICENSE:  MIT
 
-let g:FastProject_PluginDir = FPPathCheck(expand('<sfile>:p:h:h').'/')
+let g:FastProject_PluginDir = expand('<sfile>:p:h:h').'/'
 let g:FastProject_TemplateDir = g:FastProject_PluginDir.'template/'
 let g:FastProject_SubDir = g:FastProject_PluginDir.'sub/'
 let g:FastProject_TemplateBeforePath = ''

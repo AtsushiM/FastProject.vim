@@ -4,13 +4,13 @@
 "LICENSE:  MIT
 
 if !exists("g:FastProject_AutoSassCompile")
-    let g:FastProject_AutoSassCompile = 1
+    let g:FastProject_AutoSassCompile = 0
 endif
 if !exists("g:FastProject_DefaultSASSDir")
-    let g:FastProject_DefaultSASSDir = ['sass', 'scss']
+    let g:FastProject_DefaultSASSDir = []
 endif
 if !exists("g:FastProject_DefaultCSSDir")
-    let g:FastProject_DefaultCSSDir = ['css', 'stylesheet']
+    let g:FastProject_DefaultCSSDir = []
 endif
 
 function! s:FPCompassCheck()
