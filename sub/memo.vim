@@ -18,14 +18,22 @@ if !filereadable(s:FastProject_DefaultMemo)
     call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultMemo.' '.s:FastProject_DefaultMemo)
 endif
 
+function! s:FPMemoOpen()
+    exec g:FastProject_MemoWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultMemo
+    let s:FastProject_MemoOpen = 1
+    let s:FastProject_MemoNo = bufnr('%')
+endfunction
+function! s:FPMemoClose()
+    let s:FastProject_MemoOpen = 0
+    exec 'bw '.s:FastProject_MemoNo
+    winc p
+endfunction
+
 function! s:FPMemo()
     if s:FastProject_MemoOpen == 0
-        exec g:FastProject_MemoWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultMemo
-        let s:FastProject_MemoOpen = 1
-        let s:FastProject_MemoNo = bufnr('%')
+        call s:FPMemoOpen()
     else
-        let s:FastProject_MemoOpen = 0
-        exec 'bw '.s:FastProject_MemoNo
+        call s:FPMemoClose()
     endif
 endfunction
 
@@ -36,3 +44,8 @@ function! s:FPSetBufMapMemo()
     nnoremap <buffer><silent> q :bw %<CR>:winc p<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultMemo.' call <SID>FPSetBufMapMemo()'
+
+function! s:FPBufLeaveMemo()
+    call s:FPMemoClose()
+endfunction
+exec 'au BufLeave '.g:FastProject_DefaultMemo.' call <SID>FPBufLeaveMemo()'

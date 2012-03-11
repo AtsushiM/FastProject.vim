@@ -19,14 +19,23 @@ if !filereadable(s:FastProject_DefaultToDo)
     call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultToDo.' '.s:FastProject_DefaultToDo)
 endif
 
+function! s:FPToDoOpen()
+    exec g:FastProject_ToDoWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
+    let s:FastProject_ToDoOpen = 1
+    let s:FastProject_ToDoNo = bufnr('%')
+endfunction
+function! s:FPToDoClose()
+    let s:FastProject_ToDoOpen = 0
+    FPToDoSort
+    exec 'bw '.s:FastProject_ToDoNo
+    winc p
+endfunction
+
 function! s:FPToDo()
     if s:FastProject_ToDoOpen == 0
-        exec g:FastProject_ToDoWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultToDo
-        let s:FastProject_ToDoOpen = 1
-        let s:FastProject_ToDoNo = bufnr('%')
+        call s:FPToDoOpen()
     else
-        let s:FastProject_ToDoOpen = 0
-        exec 'bw '.s:FastProject_ToDoNo
+        call s:FPToDoClose()
     endif
 endfunction
 function! s:FPCheckToDoStatus()
@@ -119,7 +128,7 @@ function! s:FPSetBufMapToDo()
     nnoremap <buffer><silent> <Space> :FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> <Tab> :FPChangeToDoStatus<CR>
     nnoremap <buffer><silent> <C-C> :FPChangeToDoStatus<CR>
-    nnoremap <buffer><silent> q :FPToDoSort<CR>:bw %<CR>:winc p<CR>
+    nnoremap <buffer><silent> q :call <SID>FPToDoClose()<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultToDo.' call <SID>FPSetBufMapToDo()'
 exec 'au BufRead '.g:FastProject_DefaultToDo.' set filetype=fptodo'
@@ -128,4 +137,9 @@ function! s:FPVimLeaveToDo()
     FPToDoRemove
     FPToDoSort
 endfunction
-exec 'au VimLeave * call <SID>FPVimLeaveToDo()'
+exec 'au VimLeave '.g:FastProject_DefaultToDo.' call <SID>FPVimLeaveToDo()'
+
+function! s:FPBufLeaveToDo()
+    call s:FPToDoClose()
+endfunction
+exec 'au BufLeave '.g:FastProject_DefaultToDo.' call <SID>FPBufLeaveToDo()'

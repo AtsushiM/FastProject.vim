@@ -18,14 +18,22 @@ if !filereadable(s:FastProject_DefaultBookmark)
     call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultBookmark.' '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark)
 endif
 
+function! s:FPBookmarkOpen()
+    exec g:FastProject_BookmarkWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark
+    let s:FastProject_BookmarkOpen = 1
+    let s:FastProject_BookmarkNo = bufnr('%')
+endfunction
+function! s:FPBookmarkClose()
+    let s:FastProject_BookmarkOpen = 0
+    exec 'bw '.s:FastProject_BookmarkNo
+    winc p
+endfunction
+
 function! s:FPBookmark()
     if s:FastProject_BookmarkOpen == 0
-        exec g:FastProject_BookmarkWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark
-        let s:FastProject_BookmarkOpen = 1
-        let s:FastProject_BookmarkNo = bufnr('%')
+        call s:FPBookmarkOpen()
     else
-        let s:FastProject_BookmarkOpen = 0
-        exec 'bw '.s:FastProject_BookmarkNo
+        call s:FPBookmarkClose()
     endif
 endfunction
 command! FPBookmark call s:FPBookmark()
@@ -34,6 +42,10 @@ function! s:FPSetBufMapBookmark()
     set cursorline
     nnoremap <buffer><silent> e :FPBrowse<CR>
     nnoremap <buffer><silent> <CR> :FPBrowse<CR>
-    nnoremap <buffer><silent> q :bw %<CR>:winc p<CR>
+    nnoremap <buffer><silent> q :call <SID>FPBookmarkClose()<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultBookmark.' call <SID>FPSetBufMapBookmark()'
+function! s:FPBufLeaveBookmark()
+    call s:FPBookmarkClose()
+endfunction
+exec 'au BufLeave '.g:FastProject_DefaultBookmark.' call <SID>FPBufLeaveBookmark()'

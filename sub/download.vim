@@ -34,14 +34,22 @@ function! s:FPWget()
     endif
 endfunction
 
+function! s:FPDownloadOpen()
+    exec g:FastProject_DownloadWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
+    let s:FastProject_DownloadOpen = 1
+    let s:FastProject_DownloadNo = bufnr('%')
+endfunction
+function! s:FPDownloadClose()
+    let s:FastProject_DownloadOpen = 0
+    exec 'bw '.s:FastProject_DownloadNo
+    winc p
+endfunction
+
 function! s:FPDownload()
     if s:FastProject_DownloadOpen == 0
-        exec g:FastProject_DownloadWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultDownload
-        let s:FastProject_DownloadOpen = 1
-        let s:FastProject_DownloadNo = bufnr('%')
+        call s:FPDownloadOpen()
     else
-        let s:FastProject_DownloadOpen = 0
-        exec 'bw '.s:FastProject_DownloadNo
+        call s:FPDownloadClose()
     endif
 endfunction
 
@@ -56,3 +64,8 @@ function! s:FPSetBufMapDownload()
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultDownload.' call <SID>FPSetBufMapDownload()'
 exec 'au BufReadPre '.g:FastProject_DefaultDownload.' let s:FastProject_DownloadBeforePath = getcwd()'
+
+function! s:FPBufLeaveDownload()
+    call s:FPDownloadClose()
+endfunction
+exec 'au BufLeave '.g:FastProject_DefaultDownload.' call <SID>FPBufLeaveDownload()'
