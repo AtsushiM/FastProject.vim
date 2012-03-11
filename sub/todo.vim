@@ -137,7 +137,7 @@ function! s:FPVimLeaveToDo()
     FPToDoRemove
     FPToDoSort
 endfunction
-exec 'au VimLeave '.g:FastProject_DefaultToDo.' call <SID>FPVimLeaveToDo()'
+exec 'au VimLeave * call <SID>FPVimLeaveToDo()'
 
 function! s:FPBufLeaveToDo()
     call s:FPToDoClose()
