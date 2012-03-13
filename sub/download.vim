@@ -64,8 +64,3 @@ function! s:FPSetBufMapDownload()
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultDownload.' call <SID>FPSetBufMapDownload()'
 exec 'au BufReadPre '.g:FastProject_DefaultDownload.' let s:FastProject_DownloadBeforePath = getcwd()'
-
-function! s:FPBufLeaveDownload()
-    call s:FPDownloadClose()
-endfunction
-exec 'au BufLeave '.g:FastProject_DefaultDownload.' call <SID>FPBufLeaveDownload()'

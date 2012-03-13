@@ -45,7 +45,3 @@ function! s:FPSetBufMapBookmark()
     nnoremap <buffer><silent> q :call <SID>FPBookmarkClose()<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultBookmark.' call <SID>FPSetBufMapBookmark()'
-function! s:FPBufLeaveBookmark()
-    call s:FPBookmarkClose()
-endfunction
-exec 'au BufLeave '.g:FastProject_DefaultBookmark.' call <SID>FPBufLeaveBookmark()'
