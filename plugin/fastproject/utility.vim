@@ -74,6 +74,7 @@ function! _FPPathAbs(...)
     let orgdir = expand('%:p:h')
     let root = FPRootPath()
     let base = getline('.')
+    let org = base
     let prefix = ''
     let end = 0
     let ret = ''
@@ -83,7 +84,7 @@ function! _FPPathAbs(...)
     endif
 
     while end == 0
-        let line = matchlist(base, '\v(.{-})(src|href)(\=")([^/][^\":]+)(")(.*)')
+        let line = matchlist(base, '\v(.{-})(src|href)(\=")([^/#][^\":]+)(")(.*)')
         if line != []
             let orgary = split(orgdir, '/')
             let srcary = split (line[4], '/')
@@ -106,6 +107,9 @@ function! _FPPathAbs(...)
             let end = 1
         endif
     endwhile
-    call setline('.', ret)
+
+    if ret != org
+        call setline('.', ret)
+    endif
 endfunction
 command! -nargs=* FPPathAbs call FPPathAbs(<f-args>)

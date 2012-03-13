@@ -247,7 +247,7 @@ function! s:FPSetBufMapProjectList()
     nnoremap <buffer><silent> e :FPOpen<CR>
     nnoremap <buffer><silent> <CR> :FPOpen<CR>
     nnoremap <buffer><silent> q :bw %<CR>:winc p<CR>
-    nnoremap <buffer><silent> dd :FPProjectFileDelete<CR>dd
+    nnoremap <buffer><silent> dd :FPProjectFileDelete<CR>dd:w<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultList.' call <SID>FPSetBufMapProjectList()'
 
