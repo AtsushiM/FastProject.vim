@@ -18,13 +18,16 @@ endif
 
 function! FPRootPath()
     let i = 0
-    let dir = expand('%:p:h').'/'
+    let org = expand('%:p:h')
+    let dir = org.'/'
     while i < g:FastProject_CDLoop
         if !filereadable(dir.g:FastProject_DefaultConfigFile)
             let i = i + 1
             let dir = dir.'../'
         else
             exec 'silent cd '.dir
+            let dir = getcwd()
+            exec 'silent cd '.org
             break
         endif
     endwhile
@@ -38,14 +41,15 @@ endfunction
 
 function! FPCD(...)
     let dir = FPRootPath()
+    exec 'cd '.dir
 
     if dir == ''
         return 0
     else
         if a:0 != 0
             for e in a:000[0]
-                if isdirectory(dir.e)
-                    let dir = dir.e
+                if isdirectory(dir.'/'.e)
+                    let dir = dir.'/'.e
                     break
                 endif
             endfor
@@ -61,6 +65,8 @@ function! FPEdit(path)
     let root = FPRootPath()
 
     if root != ''
+        exec 'cd '.root
+
         if type(a:path) != 3
             let path = [a:path]
         else
@@ -68,7 +74,11 @@ function! FPEdit(path)
         endif
 
         for e in path
-            let target = root.e
+            if e != ''
+                let target = root.'/'.e
+            else
+                let target = root
+            endif
 
             if filereadable(target) || isdirectory(target)
                 if g:FastProject_UseUnite == 0
@@ -85,17 +95,17 @@ endfunction
 
 command! -nargs=* FPCD call FPCD(<f-args>)
 
-command! FPEditRoot call FPEdit('.')
+command! FPEditRoot call FPEdit('')
 command! FPEditSASS call FPEdit(g:FastProject_DefaultSASSDir)
 command! FPEditCSS call FPEdit(g:FastProject_DefaultCSSDir)
 command! FPEditIMG call FPEdit(g:FastProject_DefaultIMGDir)
 command! FPEditJS call FPEdit(g:FastProject_DefaultJSDir)
 
-command! FPCDRoot call FPCD([ '.' ])
-command! FPCDSASS call FPCD([ g:FastProject_DefaultSASSDir ])
-command! FPCDCSS call FPCD([ g:FastProject_DefaultCSSDir ])
+command! FPCDRoot call FPCD([])
+command! FPCDSASS call FPCD([g:FastProject_DefaultSASSDir])
+command! FPCDCSS call FPCD([g:FastProject_DefaultCSSDir])
 command! FPCDIMG call FPCD([g:FastProject_DefaultIMGDir])
-command! FPCDJS call FPCD([ g:FastProject_DefaultJSDir ])
+command! FPCDJS call FPCD([g:FastProject_DefaultJSDir])
 
 if g:FastProject_AutoCDRoot == 1
     au BufReadPost * exec FPCD() 

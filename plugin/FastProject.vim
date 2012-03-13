@@ -179,7 +179,7 @@ function! s:FPOpen()
     exec 'cd '.path
     call g:_FPOpen(path)
     exec 'echo "Project Open:'.path.'"'
-    silent call <SID>FPAddCore()
+    " silent call <SID>FPAddCore()
 endfunction
 
 if !exists('g:_FPOpen')

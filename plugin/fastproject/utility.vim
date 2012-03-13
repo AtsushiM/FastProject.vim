@@ -3,10 +3,6 @@
 "VERSION:  0.9
 "LICENSE:  MIT
 
-if !exists("g:FastProject_AbsPathComment")
-    let g:FastProject_AbsPathComment = 1
-endif
-
 function! FPPathCheck(path)
     return escape(a:path, ' ')
 endfunction
@@ -44,67 +40,72 @@ function! FPDelete(path)
     endif
 endfunction
 
-function! FPPathAbs()
-    " TODO
-    let orgdir = getcwd()
+function! FPPathAbs(...)
+    let now = line('.')
+    let col = col('.')
+    let start = now
+    let end = now
+    let prefix = ''
+
+    if a:0 != 0
+        for e in a:000
+            let eary = split(e,'=')
+            if eary[0] == '-all'
+                if eary[1] == '0'
+                    let start = now
+                    let end = now
+                else
+                    let start = 1
+                    let end = line('w$')
+                endif
+            elseif eary[0] == '-start'
+                let start = eary[1]
+            elseif eary[0] == '-end'
+                let end = eary[1]
+            elseif eary[0] == '-prefix'
+                exec 'let prefix = '."'".eary[1]."'"
+            endif
+        endfor
+    endif
+    exec ''.start.','.end.'call _FPPathAbs("'.prefix.'")'
+    call cursor(now, col)
+endfunction
+function! _FPPathAbs(...)
+    let orgdir = expand('%:p:h')
+    let root = FPRootPath()
     let base = getline('.')
+    let prefix = ''
     let end = 0
     let ret = ''
-    while end != 1
+
+    if a:0 != 0
+        let prefix = a:000[0]
+    endif
+
+    while end == 0
         let line = matchlist(base, '\v(.{-})(src|href)(\=")([^/][^\":]+)(")(.*)')
         if line != []
-            let root = FPRootPath()
-            exec 'cd '.root
-            let root = getcwd().'/'
-            exec 'cd '.orgdir
-
-            if root != ''
-                let dir = expand('%:p:h')
-                let fullpath = dir.'/'.line[4]
-                let isfile = 0
-                let file_name = ''
-                if !isdirectory(fullpath)
-                    let isfile = 1
-                    let temp = ''
-                    let sf = split(fullpath, '\/')
-                    for e in sf
-                        echo temp.'/'.e
-                        if isdirectory(temp.'/'.e)
-                            let temp = temp.'/'.e
-                        else
-                            let fullpath = temp.'/'
-                            break
-                        endif
-                    endfor
-                    let file_name = e
+            let orgary = split(orgdir, '/')
+            let srcary = split (line[4], '/')
+            let calary = deepcopy(srcary)
+            for e in srcary
+                if e == '..'
+                    unlet orgary[-1]
+                    unlet calary[0]
+                elseif e == '.'
+                    unlet calary[0]
+                else
+                    break
                 endif
-
-                exec 'cd '.fullpath
-                let fullpath = getcwd().'/'
-                exec 'cd '.orgdir
-
-                if isfile == 1
-                    let fullpath = fullpath.file_name
-                endif
-
-                let spath = matchlist(fullpath, '\v('.root.')(.*)')
-                if spath != []
-                    let fullpath = '/'.spath[2]
-                endif
-
-                let ret = ret.line[1].line[2].line[3].fullpath.line[5]
-                let base = line[6]
-            endif
+            endfor
+            echo 
+            let ret = ret.line[1].line[2].line[3].prefix.split('/'.join(orgary, '/').'/'.join(calary, '/'), root)[0].line[5]
+            let base = line[6]
         else
             let ret = ret.base
             let end = 1
         endif
     endwhile
-    if g:FastProject_AbsPathComment == 1
-        silent normal ^i/* 
-        silent normal $a */
-        silent normal o
-    endif
     call setline('.', ret)
 endfunction
-
+command! -nargs=* FPPathAbs call FPPathAbs(<f-args>)
