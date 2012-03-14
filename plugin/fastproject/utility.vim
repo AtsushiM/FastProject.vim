@@ -40,6 +40,23 @@ function! FPDelete(path)
     endif
 endfunction
 
+function! _linetypecheck()
+    let line = getline('.')
+    let ret = ''
+    let ishtml = matchlist(line, '\v\<(.+)\>')
+
+    if ishtml != []
+        let ret = 'html'
+    else
+        let iscss = matchlist(line, '\v.{-}(:).{-}')
+
+        if iscss != []
+            let ret = 'css'
+        endif
+    endif
+
+    return ret
+endfunction
 function! FPPathAbs(...)
     let now = line('.')
     let col = col('.')
@@ -84,27 +101,53 @@ function! _FPPathAbs(...)
     endif
 
     while end == 0
-        let line = matchlist(base, '\v(.{-})(src|href)(\=")([^/#][^\":]+)(")(.*)')
-        if line != []
-            let orgary = split(orgdir, '/')
-            let srcary = split (line[4], '/')
-            let calary = deepcopy(srcary)
-            for e in srcary
-                if e == '..'
-                    unlet orgary[-1]
-                    unlet calary[0]
-                elseif e == '.'
-                    unlet calary[0]
-                else
-                    break
-                endif
-            endfor
-            echo 
-            let ret = ret.line[1].line[2].line[3].prefix.split('/'.join(orgary, '/').'/'.join(calary, '/'), root)[0].line[5]
-            let base = line[6]
-        else
-            let ret = ret.base
-            let end = 1
+        let type = _linetypecheck()
+        if type == 'html'
+            let line = matchlist(base, '\v(.{-})(src|href)(\=")([^/#][^\":]*)(")(.*)')
+            if line != []
+                let orgary = split(orgdir, '/')
+                let srcary = split (line[4], '/')
+                let calary = deepcopy(srcary)
+                for e in srcary
+                    if e == '..'
+                        unlet orgary[-1]
+                        unlet calary[0]
+                    elseif e == '.'
+                        unlet calary[0]
+                    else
+                        break
+                    endif
+                endfor
+                echo 
+                let ret = ret.line[1].line[2].line[3].prefix.split('/'.join(orgary, '/').'/'.join(calary, '/'), root)[0].line[5]
+                let base = line[6]
+            else
+                let ret = ret.base
+                let end = 1
+            endif
+        elseif type == 'css'
+            let line = matchlist(base, '\v(.{-})(url)(\([''"]?)([^/#][^\":]*)([''"]?\))(.*)')
+            if line != []
+                let orgary = split(orgdir, '/')
+                let srcary = split (line[4], '/')
+                let calary = deepcopy(srcary)
+                for e in srcary
+                    if e == '..'
+                        unlet orgary[-1]
+                        unlet calary[0]
+                    elseif e == '.'
+                        unlet calary[0]
+                    else
+                        break
+                    endif
+                endfor
+                echo 
+                let ret = ret.line[1].line[2].line[3].prefix.split('/'.join(orgary, '/').'/'.join(calary, '/'), root)[0].line[5]
+                let base = line[6]
+            else
+                let ret = ret.base
+                let end = 1
+            endif
         endif
     endwhile
 
