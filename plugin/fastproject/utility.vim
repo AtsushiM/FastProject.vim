@@ -155,4 +155,4 @@ function! _FPPathAbs(...)
         call setline('.', ret)
     endif
 endfunction
-command! -nargs=* FPPathAbs call FPPathAbs(<f-args>)
+command! -nargs=* -range FPPathAbs <line1>,<line2>call FPPathAbs(<f-args>)
