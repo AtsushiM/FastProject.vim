@@ -15,7 +15,7 @@ function! s:FPMakeFileCheck()
 endfunction
 function! s:FPMake()
     let dir = getcwd()
-    silent call FPCD()
+    silent call fpcd#CD()
 
     let check = <SID>FPMakeFileCheck()
     if check == 1

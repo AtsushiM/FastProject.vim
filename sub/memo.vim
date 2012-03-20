@@ -44,3 +44,4 @@ function! s:FPSetBufMapMemo()
     nnoremap <buffer><silent> q :bw %<CR>:winc p<CR>
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultMemo.' call <SID>FPSetBufMapMemo()'
+exec 'au BufWinLeave '.g:FastProject_DefaultMemo.' call <SID>FPMemoClose()'

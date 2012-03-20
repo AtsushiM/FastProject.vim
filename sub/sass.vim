@@ -49,7 +49,7 @@ endfunction
 
 function! s:FPSassCompile()
     let dir = getcwd()
-    silent call FPCD()
+    silent call fpcd#CD()
     let check = <SID>FPCompassCheck()
     if check == 1
         let cmd = 'compass compile&'

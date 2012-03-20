@@ -132,6 +132,7 @@ function! s:FPSetBufMapToDo()
 endfunction
 exec 'au BufRead '.g:FastProject_DefaultToDo.' call <SID>FPSetBufMapToDo()'
 exec 'au BufRead '.g:FastProject_DefaultToDo.' set filetype=fptodo'
+exec 'au BufWinLeave '.g:FastProject_DefaultToDo.' call <SID>FPToDoClose()'
 
 function! s:FPVimLeaveToDo()
     FPToDoRemove
